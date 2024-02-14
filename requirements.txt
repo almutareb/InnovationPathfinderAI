@@ -1,0 +1,11 @@
+ langchain 
+ langchain-community 
+ beautifulsoup4 
+ faiss-cpu 
+ chromadb 
+ validators 
+ sentence_transformers 
+ typing-extensions==4.8.0 
+ unstructured 
+ gradio==3.48.0
+ boto3
