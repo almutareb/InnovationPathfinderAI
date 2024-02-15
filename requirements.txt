@@ -9,3 +9,5 @@
  unstructured 
  gradio==3.48.0
  boto3
+ arxiv
+ langchainhub
