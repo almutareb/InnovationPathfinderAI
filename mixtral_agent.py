@@ -85,7 +85,7 @@ agent_executor = AgentExecutor(
     agent=agent, 
     tools=tools, 
     verbose=True,
-    handle_parsing_errors=True
+    handle_parsing_errors=True #prevents error
     )
 
 # agent_executor.invoke(
@@ -100,10 +100,18 @@ agent_executor = AgentExecutor(
 #     }
 # )
 
+# agent_executor.invoke(
+#     {
+#         "input": "How to generate videos from images using state of the art macchine learning models"
+#     }
+# )
+
+
 agent_executor.invoke(
     {
-        "input": "How to generate videos from images using state of the art macchine learning models"
+        "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
+        "add the urls of the papers used in the final answer using the metadata from the retriever"
+        # f"Please prioritize the newest papers this is the current data {get_current_date()}"
     }
 )
-
 
