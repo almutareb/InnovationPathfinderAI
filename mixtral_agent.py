@@ -13,12 +13,21 @@ from langchain.agents.output_parsers import (
     ReActJsonSingleInputOutputParser,
 )
 from langchain.tools.render import render_text_description
+import os
+
+import dotenv
+
+dotenv.load_dotenv()
+
+ 
+OLLMA_BASE_URL = os.getenv("OLLMA_BASE_URL")
+
 
 # supports many more optional parameters. Hover on your `ChatOllama(...)`
 # class to view the latest available supported parameters
 llm = ChatOllama(
     model="mistral",
-    base_url="https://0013-35-201-206-176.ngrok-free.app"
+    base_url= OLLMA_BASE_URL
     )
 prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
 
@@ -72,7 +81,12 @@ agent = (
 )
 
 # instantiate AgentExecutor
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True,handle_parsing_errors=True)
+agent_executor = AgentExecutor(
+    agent=agent, 
+    tools=tools, 
+    verbose=True,
+    handle_parsing_errors=True
+    )
 
 # agent_executor.invoke(
 #     {
