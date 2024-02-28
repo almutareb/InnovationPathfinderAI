@@ -12,8 +12,14 @@ from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import (
     ReActJsonSingleInputOutputParser,
 )
+# Import things that are needed generically
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain.tools import BaseTool, StructuredTool, tool
+from typing import List, Dict
+from datetime import datetime
 from langchain.tools.render import render_text_description
 import os
+
 
 import dotenv
 
@@ -31,39 +37,9 @@ llm = ChatOllama(
     )
 prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
 
-# using LangChain Expressive Language chain syntax
-# learn more about the LCEL on
-# https://python.langchain.com/docs/expression_language/why
-chain = prompt | llm | StrOutputParser()
-
-# for brevity, response is printed in terminal
-# You can use LangServe to deploy your application for
-# production
-print(chain.invoke({"topic": "Space travel"}))
-
-retriever = ArxivRetriever(load_max_docs=2)
-
-# Import things that are needed generically
-from langchain.pydantic_v1 import BaseModel, Field
-from langchain.tools import BaseTool, StructuredTool, tool
+arxiv_retriever = ArxivRetriever(load_max_docs=2)
 
 
-global all_sources
-
-# @tool
-# def search(query: str) -> str:
-#     """Look up things online."""
-#     # return "LangChain"
-#     data = retriever.invoke(query)
-#     meta_data = [i.metadata for i in data]
-#     # meta_data += all_sources
-#     # all_sources += meta_data
-#     all_sources += meta_data
-#     # all_sources = []
-#     return meta_data
-
-from typing import List, Dict
-from datetime import datetime
 
 def format_info_list(info_list: List[Dict[str, str]]) -> str:
     """
@@ -87,11 +63,11 @@ def format_info_list(info_list: List[Dict[str, str]]) -> str:
     return '\n'.join(formatted_strings)
     
 @tool
-def search(query: str) -> str:
-    """Look up things online."""
+def arxiv_search(query: str) -> str:
+    """Using the arxiv search and collects metadata."""
     # return "LangChain"
     global all_sources
-    data = retriever.invoke(query)
+    data = arxiv_retriever.invoke(query)
     meta_data = [i.metadata for i in data]
     # meta_data += all_sources
     # all_sources += meta_data
@@ -102,11 +78,24 @@ def search(query: str) -> str:
     # formatted_info = format_info_list(all_sources)
     
     return meta_data.__str__()
-    
-    # all_sources = []
-    # return meta_data
 
-tools = [search]
+@tool
+def google_search(query: str) -> str:
+    """Using the google search and collects metadata."""
+    # return "LangChain"
+    global all_sources
+    
+    x = SerpAPIWrapper()
+    search_results:dict = x.results(query)
+    
+ 
+    organic_source = search_results['organic_results']
+    return organic_source
+
+
+    
+
+tools = [arxiv_search,google_search]
 
 # tools = [
 #     create_retriever_tool(
@@ -123,7 +112,6 @@ tools = [search]
 #     )
 
 # ]
-
 
 
 prompt = hub.pull("hwchase17/react-json")
@@ -160,19 +148,25 @@ if __name__ == "__main__":
     # global variable for collecting sources
     all_sources =  []    
 
-    input = agent_executor.invoke(
-        {
-            "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
-            "add the urls of the papers used in the final answer using the metadata from the retriever"
-            # f"Please prioritize the newest papers this is the current data {get_current_date()}"
-        }
-    )
-    
-    x = 0
+    # input = agent_executor.invoke(
+    #     {
+    #         "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
+    #         "add the urls of the papers used in the final answer using the metadata from the retriever"
+    #         # f"Please prioritize the newest papers this is the current data {get_current_date()}"
+    #     }
+    # )
 
+    # input_1 = agent_executor.invoke(
+    #     {
+    #         "input": "I am looking for a text to 3d model; Using the axriv retriever  " +
+    #         "add the urls of the papers used in the final answer using the metadata from the retriever"
+    #         # f"Please prioritize the newest papers this is the current data {get_current_date()}"
+    #     }
+    # )
+    
     input_1 = agent_executor.invoke(
         {
-            "input": "I am looking for a text to 3d model; Using the axriv retriever  " +
+            "input": "I am looking for a text to 3d model; Using the google retriever  " +
             "add the urls of the papers used in the final answer using the metadata from the retriever"
             # f"Please prioritize the newest papers this is the current data {get_current_date()}"
         }
