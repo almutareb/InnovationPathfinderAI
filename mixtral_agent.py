@@ -90,7 +90,13 @@ def google_search(query: str) -> str:
     
  
     organic_source = search_results['organic_results']
-    return organic_source
+    # formatted_string = "Title: {title}, link: {link}, snippet: {snippet}".format(**organic_source)
+    cleaner_sources = ["Title: {title}, link: {link}, snippet: {snippet}".format(**i) for i in organic_source]
+    
+    all_sources += cleaner_sources    
+    
+    return cleaner_sources.__str__()
+    # return organic_source
 
 
     
@@ -138,7 +144,7 @@ agent_executor = AgentExecutor(
     agent=agent, 
     tools=tools, 
     verbose=True,
-    handle_parsing_errors=True #prevents error
+    # handle_parsing_errors=True #prevents error
     )
 
     
@@ -148,13 +154,13 @@ if __name__ == "__main__":
     # global variable for collecting sources
     all_sources =  []    
 
-    # input = agent_executor.invoke(
-    #     {
-    #         "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
-    #         "add the urls of the papers used in the final answer using the metadata from the retriever"
-    #         # f"Please prioritize the newest papers this is the current data {get_current_date()}"
-    #     }
-    # )
+    input = agent_executor.invoke(
+        {
+            "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
+            "add the urls of the papers used in the final answer using the metadata from the retriever please do not use '`' "
+            # f"Please prioritize the newest papers this is the current data {get_current_date()}"
+        }
+    )
 
     # input_1 = agent_executor.invoke(
     #     {
@@ -164,13 +170,13 @@ if __name__ == "__main__":
     #     }
     # )
     
-    input_1 = agent_executor.invoke(
-        {
-            "input": "I am looking for a text to 3d model; Using the google retriever  " +
-            "add the urls of the papers used in the final answer using the metadata from the retriever"
-            # f"Please prioritize the newest papers this is the current data {get_current_date()}"
-        }
-    )
+    # input_1 = agent_executor.invoke(
+    #     {
+    #         "input": "I am looking for a text to 3d model; Using the google search tool " +
+    #         "add the urls in the final answer using the metadata from the retriever, also provid a summary of the searches"
+    #         # f"Please prioritize the newest papers this is the current data {get_current_date()}"
+    #     }
+    # )
 
     x = 0
 
