@@ -153,34 +153,6 @@ agent_executor = AgentExecutor(
     handle_parsing_errors=True #prevents error
     )
 
-# agent_executor.invoke(
-#     {
-#         "input": "Who is the current holder of the speed skating world record on 500 meters? What is her current age raised to the 0.43 power?"
-#     }
-# )
-
-# agent_executor.invoke(
-#     {
-#         "input": "what are large language models and why are they so expensive to run?"
-#     }
-# )
-
-# agent_executor.invoke(
-#     {
-#         "input": "How to generate videos from images using state of the art macchine learning models"
-#     }
-# )
-
-# class AgentSample:
-    
-    
-#     def __init__(self, agent_executor_object,*args, **kwargs):
-#         self.agent_executor_object = agent_executor_object
-#         self.meta_data = []
-        
-#     def sample_invokex
-        
-        
     
 
 if __name__ == "__main__":
