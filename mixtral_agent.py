@@ -19,7 +19,7 @@ from typing import List, Dict
 from datetime import datetime
 from langchain.tools.render import render_text_description
 import os
-
+import arxiv
 
 import dotenv
 
@@ -38,6 +38,12 @@ llm = ChatOllama(
 prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
 
 arxiv_retriever = ArxivRetriever(load_max_docs=2)
+
+from zipfile import ZipFile
+
+def unzip_file(zip_file: str, extract_to: str) -> None:
+    with ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
 
 
 
@@ -98,10 +104,46 @@ def google_search(query: str) -> str:
     return cleaner_sources.__str__()
     # return organic_source
 
+@tool
+def get_arxiv_paper(paper_id:str) -> None:
+    """Download a paper from axriv to download a paper please input 
+    the axriv id such as "1605.08386v1" This tool is named get_arxiv_paper
+    If you input "http://arxiv.org/abs/2312.02813", This will break the code. Also only do 
+    "2312.02813". In addition please download one paper at a time. Pleaase keep the inputs/output
+    free of additional information only have the id. 
+    """
+    t = 0
+    paper = next(arxiv.Client().results(arxiv.Search(id_list=[paper_id])))
+    
+    number_without_period = paper_id.replace('.', '')
+    
+    
+    # Download the archive to the PWD with a default filename.
+    # paper.download_source()
+    # Download the archive to the PWD with a custom filename.
+    # paper.download_source(filename="downloaded-paper.tar.gz")
+    # Download the archive to a specified directory with a custom filename.
+    # paper.download_pdf(filename="downloaded-paper.pdf")
+    # Download the PDF to a specified directory with a custom filename.
+    paper.download_pdf(dirpath="./mydir", filename=f"{number_without_period}.pdf")
+    
+    # file_name = number_without_period + ".tar.gz"
+    # dir_path = "./mydir"
+    # paper.download_source(dirpath=dir_path, filename=file_name)
+    
+    # complete_path = dir_path + "/" + file_name
+    
+    # unzip_file(complete_path,number_without_period)
+    
+    
 
     
 
-tools = [arxiv_search,google_search]
+tools = [
+    arxiv_search,
+    google_search,
+    get_arxiv_paper,
+    ]
 
 # tools = [
 #     create_retriever_tool(
@@ -157,7 +199,9 @@ if __name__ == "__main__":
     input = agent_executor.invoke(
         {
             "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
-            "add the urls of the papers used in the final answer using the metadata from the retriever please do not use '`' "
+            "add the urls of the papers used in the final answer using the metadata from the retriever please do not use '`' " + 
+            "please use the `download_arxiv_paper` tool  to download any axriv paper you find" + 
+            "Please only use the tools provided to you"
             # f"Please prioritize the newest papers this is the current data {get_current_date()}"
         }
     )
