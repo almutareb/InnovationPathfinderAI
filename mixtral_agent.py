@@ -112,31 +112,13 @@ def get_arxiv_paper(paper_id:str) -> None:
     "2312.02813". In addition please download one paper at a time. Pleaase keep the inputs/output
     free of additional information only have the id. 
     """
-    t = 0
+    # code from https://lukasschwab.me/arxiv.py/arxiv.html
     paper = next(arxiv.Client().results(arxiv.Search(id_list=[paper_id])))
     
     number_without_period = paper_id.replace('.', '')
     
-    
-    # Download the archive to the PWD with a default filename.
-    # paper.download_source()
-    # Download the archive to the PWD with a custom filename.
-    # paper.download_source(filename="downloaded-paper.tar.gz")
-    # Download the archive to a specified directory with a custom filename.
-    # paper.download_pdf(filename="downloaded-paper.pdf")
     # Download the PDF to a specified directory with a custom filename.
     paper.download_pdf(dirpath="./mydir", filename=f"{number_without_period}.pdf")
-    
-    # file_name = number_without_period + ".tar.gz"
-    # dir_path = "./mydir"
-    # paper.download_source(dirpath=dir_path, filename=file_name)
-    
-    # complete_path = dir_path + "/" + file_name
-    
-    # unzip_file(complete_path,number_without_period)
-    
-    
-
     
 
 tools = [
