@@ -33,7 +33,6 @@ llm = ChatOllama(
     model="mistral:instruct",
     base_url= OLLMA_BASE_URL
     )
-prompt = ChatPromptTemplate.from_template("Tell me a short joke about {topic}")
 
 
 tools = [
@@ -71,11 +70,8 @@ agent_executor = AgentExecutor(
     )
 
     
-
 if __name__ == "__main__":
     
-    # global variable for collecting sources
-
     input = agent_executor.invoke(
         {
             "input": "How to generate videos from images using state of the art macchine learning models; Using the axriv retriever  " +
@@ -94,7 +90,7 @@ if __name__ == "__main__":
     #     }
     # )
     
-    # input_1 = agent_executor.invoke(
+    # input_2 = agent_executor.invoke(
     #     {
     #         "input": "I am looking for a text to 3d model; Using the google search tool " +
     #         "add the urls in the final answer using the metadata from the retriever, also provid a summary of the searches"
@@ -102,5 +98,4 @@ if __name__ == "__main__":
     #     }
     # )
 
-    x = 0
-
+    x = 0 # for debugging purposes
