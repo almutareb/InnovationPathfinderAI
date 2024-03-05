@@ -164,6 +164,7 @@ cython_debug/
 *.bin
 *.pickle
 chroma_db/*
+downloaded_papers/*
 bin
 obj
 .langchain.sqlite
