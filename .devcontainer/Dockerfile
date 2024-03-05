@@ -1,4 +1,4 @@
-ARG VARIANT="3.10-bookworm"
+ARG VARIANT="3.11-bookworm"
 FROM mcr.microsoft.com/devcontainers/python:1-${VARIANT}
 #FROM langchain/langchain
 
