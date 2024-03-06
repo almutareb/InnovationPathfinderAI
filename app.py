@@ -72,7 +72,7 @@ if __name__ == "__main__":
             clear.click(lambda: None, None, chatbot, queue=False)
 
     demo.queue()
-    demo.launch(debug=True)
+    demo.launch(debug=True, share=True)
 
 
     x = 0 # for debugging purposes
