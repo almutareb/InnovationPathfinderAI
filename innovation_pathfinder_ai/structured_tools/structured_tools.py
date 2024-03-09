@@ -11,6 +11,7 @@ import arxiv
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
+from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
 @tool
 def arxiv_search(query: str) -> str:
@@ -74,5 +75,5 @@ def wikipedia_search(query: str) -> str:
     api_wrapper = WikipediaAPIWrapper()
     wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
     wikipedia_results = wikipedia_search.run(query)
-    all_sources += wikipedia_results
+    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
     return wikipedia_results
