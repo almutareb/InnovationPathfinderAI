@@ -1,26 +1,15 @@
+# got some of the code from https://diptimanrc.medium.com/rapid-q-a-on-multiple-pdfs-using-langchain-and-chromadb-as-local-disk-vector-store-60678328c0df
+
 import PyPDF2
 import io
-from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings.sentence_transformer import (
-    SentenceTransformerEmbeddings,
-)
-
-from langchain_community.vectorstores import FAISS
 import os
-from dotenv import load_dotenv
+from langchain_community.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.chains.question_answering import load_qa_chain
-from langchain.chat_models import ChatOpenAI
 from langchain.vectorstores import Chroma
 import chromadb
-from chromadb.utils.embedding_functions import HuggingFaceEmbeddingServer
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import dotenv
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-import chromadb.utils.embedding_functions as embedding_functions
 
 dotenv.load_dotenv()
 
