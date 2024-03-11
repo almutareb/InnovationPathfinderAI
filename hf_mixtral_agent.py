@@ -44,12 +44,17 @@ llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
     )
 
 
-tools = [
+tools_all = [
     arxiv_search,
     wikipedia_search,
     google_search,
 #    get_arxiv_paper,
     ]
+
+tools_papers = [
+    arxiv_search,
+    wikipedia_search,
+]
 
 
 prompt = hub.pull("hwchase17/react-json")
@@ -72,9 +77,20 @@ agent = (
 )
 
 # instantiate AgentExecutor
-agent_executor = AgentExecutor(
+agent_executor_all = AgentExecutor(
     agent=agent, 
-    tools=tools, 
+    tools=tools_all, 
+    verbose=True,
+    max_iterations=6,       # cap number of iterations
+    #max_execution_time=60,  # timout at 60 sec
+    return_intermediate_steps=True,
+    handle_parsing_errors=True,
+    )
+
+# instantiate AgentExecutor
+agent_executor_noweb = AgentExecutor(
+    agent=agent, 
+    tools=tools_papers, 
     verbose=True,
     max_iterations=6,       # cap number of iterations
     #max_execution_time=60,  # timout at 60 sec
@@ -94,12 +110,13 @@ if __name__ == "__main__":
         sources = collect_urls(all_sources)
         src_list = '\n'.join(sources)
         response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
+        intermediate_steps = response['intermediate_steps']
         history[-1][1] = response_w_sources
         return history
 
     def infer(question, history):
         query =  question
-        result = agent_executor.invoke(
+        result = agent_executor_all.invoke(
             {
                 "input": question,
             }
