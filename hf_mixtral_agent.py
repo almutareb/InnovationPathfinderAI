@@ -53,7 +53,8 @@ tools_all = [
 
 tools_papers = [
     arxiv_search,
-    wikipedia_search,
+    get_arxiv_paper,
+
 ]
 
 
