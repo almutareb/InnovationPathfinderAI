@@ -1,5 +1,5 @@
 # HF libraries
-from langchain_community.llms import HuggingFaceHub
+from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.prompts import ChatPromptTemplate
 from langchain import hub
 import gradio as gr
@@ -21,7 +21,7 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
-
+from innovation_pathfinder_ai.utils import collect_urls
 # from langchain_community.chat_message_histories import ChatMessageHistory
 # from langchain_core.runnables.history import RunnableWithMessageHistory
 
@@ -36,12 +36,12 @@ LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
 LANGCHAIN_PROJECT = os.getenv('LANGCHAIN_PROJECT')
 
 # Load the model from the Hugging Face Hub
-llm = HuggingFaceHub(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", model_kwargs={
-    "temperature":0.1,
-    "max_new_tokens":1024,
-    "repetition_penalty":1.2,
-    "return_full_text":False
-    })
+llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", 
+                          temperature=0.1, 
+                          max_new_tokens=1024,
+                          repetition_penalty=1.2,
+                          return_full_text=False
+    )
 
 
 tools = [
@@ -76,7 +76,7 @@ agent_executor = AgentExecutor(
     agent=agent, 
     tools=tools, 
     verbose=True,
-    max_iterations=10,       # cap number of iterations
+    max_iterations=6,       # cap number of iterations
     #max_execution_time=60,  # timout at 60 sec
     return_intermediate_steps=True,
     handle_parsing_errors=True,
@@ -111,20 +111,7 @@ if __name__ == "__main__":
             print("You upvoted this response: " + data.value)
         else:
             print("You downvoted this response: " + data.value)
-    
-    def collect_urls(data_list):
-        urls = []
-        for item in data_list:
-            # Check if item is a string and contains 'link:'
-            if isinstance(item, str) and 'link:' in item:
-                start = item.find('link:') + len('link: ')
-                end = item.find(',', start)
-                url = item[start:end if end != -1 else None].strip()
-                urls.append(url)
-            # Check if item is a dictionary and has 'Entry ID'
-            elif isinstance(item, dict) and 'Entry ID' in item:
-                urls.append(item['Entry ID'])
-        return urls
+
 
     css="""
     #col-container {max-width: 700px; margin-left: auto; margin-right: auto;}

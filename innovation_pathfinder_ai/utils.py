@@ -22,8 +22,21 @@ def create_wikipedia_urls_from_text(text):
         url_title = title.replace(" ", "_")
         # Construct the URL and add it to the list
         url = f"https://en.wikipedia.org/wiki/{url_title}"
-        print(url)
         urls.append(url)
-        print(urls)
     
     return urls
+
+def collect_urls(data_list):
+    urls = []
+    for item in data_list:
+        # Check if item is a string and contains 'link:'
+        if isinstance(item, str) and 'link:' in item:
+            start = item.find('link:') + len('link: ')
+            end = item.find(',', start)
+            url = item[start:end if end != -1 else None].strip()
+            urls.append(url)
+        # Check if item is a dictionary and has 'Entry ID'
+        elif isinstance(item, dict) and 'Entry ID' in item:
+            urls.append(item['Entry ID'])
+    last_sources = urls[-3:]
+    return last_sources
