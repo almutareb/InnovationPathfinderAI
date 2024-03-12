@@ -17,6 +17,9 @@ import chromadb.utils.embedding_functions as embedding_functions
 import dotenv
 from tqdm import tqdm
 import uuid
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import chromadb.utils.embedding_functions as embedding_functions
+from langchain_text_splitters import MarkdownHeaderTextSplitter
 
 
 dotenv.load_dotenv()
@@ -32,6 +35,93 @@ def generate_uuid() -> str:
         str: A UUID string.
     """
     return str(uuid.uuid4())
+
+def read_markdown_file(file_path: str) -> str:
+    """
+    Read a Markdown file and return its content as a single string.
+
+    Args:
+        file_path (str): The path to the Markdown file.
+
+    Returns:
+        str: The content of the Markdown file as a single string.
+    """
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    return content
+
+def add_markdown_to_collection(
+    markdown_file_location:str,
+    collection_name:str,
+    chunk_size:int,
+    chunk_overlap:int,
+) -> None:
+    """
+    Embeds markdown data to a given chroma db collection
+    
+    markdown_file_location (str): location of markdown file
+    collection_name (str) : the collection where the documents will be added
+    chunk_size (int) : size of the chunks to be embedded
+    chunk_overlap (int) : the ammount of overlappping chunks
+
+    """
+
+    file_path = "/workspaces/InnovationPathfinderAI/2402.17764.mmd"  # Replace 'example.md' with the path to your Markdown file
+
+    markdown_document = read_markdown_file(markdown_file_location)
+
+    headers_to_split_on = [
+        ("#", "Header 1"),
+        ("##", "Header 2"),
+        ("###", "Header 3"),
+    ]
+
+    markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    md_header_splits = markdown_splitter.split_text(markdown_document)
+
+    # MD splits
+    markdown_splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=headers_to_split_on,
+        strip_headers=False,
+    )
+
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
+
+    # Split
+    splits = text_splitter.split_documents(md_header_splits)
+
+    client = chromadb.PersistentClient(
+        # path=persist_directory,
+        )
+
+    client.delete_collection(
+        name=collection_name,
+    )
+
+    # If the collection already exists, we just return it. This allows us to add more
+    # data to an existing collection.
+    collection = client.get_or_create_collection(
+        name=collection_name,
+        )
+    
+    embed_data = embedding_functions.HuggingFaceEmbeddingFunction(
+        api_key= os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+    )
+
+    documents_page_content:list = [i.page_content for i in splits]
+
+
+    for i in range(0, len(splits)):
+        data = splits[i]
+        collection.add(
+            ids=[generate_uuid()], # give each document a uuid
+            documents=documents_page_content[i], # contents of document
+            embeddings=embed_data.embed_with_retries(documents_page_content[i]),
+            metadatas=data.metadata,  # type: ignore
+        )
 
         
 def extract_text_from_pdf(file) -> list[str]:
