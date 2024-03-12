@@ -167,11 +167,43 @@ def load_vector_store(
 if __name__ == "__main__":
     
     vector_db = load_vector_store()
-    # pdf_file_location = "mydir/181000551.pdf"
-    # pdf_file_location = "/workspaces/InnovationPathfinderAI/2402.17764.pdf"
+    
+    collection_name="ArxivPapers"
+    
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    # client.delete_collection(
+    # name=collection_name,
+    # )
+    
+    collection = client.get_or_create_collection(
+    name=collection_name,
+    )
+    
     pdf_file_location = "/workspaces/InnovationPathfinderAI/2212.02623.pdf"
     
     add_pdf_to_vector_store(
         collection_name="ArxivPapers",
         pdf_file_location=pdf_file_location,
+    )
+    
+    pdf_file_location = "/workspaces/InnovationPathfinderAI/2402.17764.pdf"
+    
+    add_pdf_to_vector_store(
+        collection_name="ArxivPapers",
+        pdf_file_location=pdf_file_location,
+    )
+    
+    # pdf_file_location = "mydir/181000551.pdf"
+    # pdf_file_location = "/workspaces/InnovationPathfinderAI/2402.17764.pdf"
+    
+    
+    # example query
+    
+    results = collection.query(
+    query_texts=["benchmark"],
+    n_results=3,
+    include=['embeddings', 'documents', 'metadatas'],
     )
