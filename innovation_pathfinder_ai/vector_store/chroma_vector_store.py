@@ -91,9 +91,9 @@ def add_markdown_to_collection(
         # path=persist_directory,
         )
 
-    client.delete_collection(
-        name=collection_name,
-    )
+    # client.delete_collection(
+    #     name=collection_name,
+    # )
 
     # If the collection already exists, we just return it. This allows us to add more
     # data to an existing collection.
