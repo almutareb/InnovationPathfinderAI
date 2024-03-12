@@ -4,23 +4,17 @@
 # https://docs.trychroma.com/embeddings/hugging-face?lang=py
 # https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
 
-import PyPDF2
-import io
-import os
-from langchain_community.vectorstores import Chroma
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import Chroma
 import chromadb
-from langchain_community.embeddings import HuggingFaceEmbeddings
 import chromadb.utils.embedding_functions as embedding_functions
-import dotenv
-from tqdm import tqdm
-import uuid
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-import chromadb.utils.embedding_functions as embedding_functions
-from langchain_text_splitters import MarkdownHeaderTextSplitter
 
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import MarkdownHeaderTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.document_loaders import PyPDFLoader
+
+import uuid
+import dotenv
+import os
 
 dotenv.load_dotenv()
 
@@ -123,21 +117,6 @@ def add_markdown_to_collection(
             metadatas=data.metadata,  # type: ignore
         )
 
-        
-def extract_text_from_pdf(file) -> list[str]:
-    documents = []
-    try:
-        reader = PyPDF2.PdfReader(file)
-        num_pages = len(reader.pages)
-        for page_num in range(num_pages):
-            page = reader.pages[page_num]
-            text= page.extract_text() + "\n"
-            documents.append(text)
-    except Exception as e:
-        print(e)
-    finally:
-        return documents
-
 
 def add_pdf_to_vector_store(
     # vector_store:Chroma.from_documents,
@@ -203,60 +182,9 @@ def add_pdf_to_vector_store(
         )
     
     
-def load_chunk_persist_pdf(
-    pdf_folder_path: str = "mydir",
-    vector_db_location:str = VECTOR_DATABASE_LOCATION,
-    ) -> Chroma:
-
-    documents = []
-    for file in os.listdir(pdf_folder_path):
-        if file.endswith('.pdf'):
-            pdf_path = os.path.join(pdf_folder_path, file)
-            loader = PyPDFLoader(pdf_path)
-            documents.extend(loader.load())
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=10)
-    chunked_documents = text_splitter.split_documents(documents)
-    client = chromadb.Client()
-    if client.list_collections():
-        consent_collection = client.create_collection("consent_collection")
-    else:
-        print("Collection already exists")
-    vectordb = Chroma.from_documents(
-        documents=chunked_documents,
-        embedding = HuggingFaceEmbeddings(),
-        persist_directory=VECTOR_DATABASE_LOCATION,
-    )
-    vectordb.persist()
-    return vectordb
-
-
-def load_vector_store(
-    vector_store_location=os.getenv("VECTOR_DATABASE_LOCATION"),
-    embeddings:chromadb.utils.embedding_functions = HuggingFaceEmbeddings(),
-) -> Chroma:
-    """
-    ## Summary
-    get the vector_store 
-
-    ## Arguments
-    vector_store_location (str) : the location of the vector store
-    embeddings (chromadb.utils.embedding_functions) : the function for embedding the data 
-        
-    ## Return
-    returns the chroma db vector store
-    """
-    
-    db = Chroma(
-    persist_directory=vector_store_location, 
-    embedding_function=embeddings,
-    )
-    
-    return db
-
-
 if __name__ == "__main__":
     
-    vector_db = load_vector_store()
+    # vector_db = load_vector_store()
     
     collection_name="ArxivPapers"
     
