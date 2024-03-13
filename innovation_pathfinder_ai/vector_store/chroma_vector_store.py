@@ -3,6 +3,9 @@
 # https://stackoverflow.com/questions/76482987/chroma-database-embeddings-none-when-using-get
 # https://docs.trychroma.com/embeddings/hugging-face?lang=py
 # https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
+# https://python.langchain.com/docs/modules/data_connection/retrievers/self_query
+# https://python.langchain.com/docs/integrations/vectorstores/chroma#update-and-delete
+# https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore
 
 import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
@@ -11,7 +14,10 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.document_loaders import PyPDFLoader
-
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_core.documents import Document
 import uuid
 import dotenv
 import os
@@ -88,9 +94,6 @@ def add_markdown_to_collection(
         # path=persist_directory,
         )
 
-    # client.delete_collection(
-    #     name=collection_name,
-    # )
 
     # If the collection already exists, we just return it. This allows us to add more
     # data to an existing collection.
@@ -113,6 +116,23 @@ def add_markdown_to_collection(
             embeddings=embed_data.embed_with_retries(documents_page_content[i]),
             metadatas=data.metadata,  # type: ignore
         )
+        
+def split_by_intervals(s: str, interval: int, overlapped: int = 0) -> list:
+    """
+    Split a string into intervals of a given length, with optional overlapping.
+    
+    Args:
+        s: The input string.
+        interval: The length of each interval.
+        overlapped: The number of characters to overlap between intervals. Default is 0.
+    
+    Returns:
+        A list of substrings, each containing 'interval' characters from the input string.
+    """
+    result = []
+    for i in range(0, len(s), interval - overlapped):
+        result.append(s[i:i + interval])
+    return result
 
 
 def add_pdf_to_vector_store(
@@ -139,20 +159,43 @@ def add_pdf_to_vector_store(
     
     loader = PyPDFLoader(pdf_file_location)
     
+    # text_splitter = CharacterTextSplitter(
+    #     chunk_size=text_chunk_size,
+    #     chunk_overlap=text_chunk_overlap,
+    #     )
+    
     text_splitter = CharacterTextSplitter(
-        chunk_size=text_chunk_size,
-        chunk_overlap=text_chunk_overlap,
-        )
+    separator="\n\n",
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+    is_separator_regex=False,
+)
     
     documents.extend(loader.load())
+    
+    split_docs:list[Document] = []
+    
+    for i in documents:
+        sub_docs = split_by_intervals(
+            i.page_content, 
+            text_chunk_size,
+            text_chunk_overlap
+            )
+        
+        for ii in sub_docs:
+                # Document()
+            fg = Document(ii, metadata=i.metadata)
+            split_docs.append(fg)
+        
+        
+    
+    # texts = text_splitter.create_documents([state_of_the_union])
     
     client = chromadb.PersistentClient(
     # path=persist_directory,
     )
     
-    # client.delete_collection(
-    # name=collection_name,
-    # )
     
     collection = client.get_or_create_collection(
     name=collection_name,
@@ -162,8 +205,13 @@ def add_pdf_to_vector_store(
         api_key= os.getenv("HUGGINGFACEHUB_API_TOKEN"),
     )
     
+    # create the open-source embedding function
+    # embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    
+    docs = text_splitter.split_documents(documents)
     
     chunked_documents = text_splitter.split_documents(documents)
+    
     
     documents_page_content:list = [i.page_content for i in documents]
     
@@ -181,14 +229,13 @@ def add_pdf_to_vector_store(
     
 if __name__ == "__main__":
     
-    # vector_db = load_vector_store()
-    
     collection_name="ArxivPapers"
     
     client = chromadb.PersistentClient(
     # path=persist_directory,
     )
     
+    # delete existing collection
     # client.delete_collection(
     # name=collection_name,
     # )
@@ -215,10 +262,10 @@ if __name__ == "__main__":
     # pdf_file_location = "/workspaces/InnovationPathfinderAI/2402.17764.pdf"
     
     
-    # example query
+    # example query using Chroma
     
-    results = collection.query(
-    query_texts=["benchmark"],
-    n_results=3,
-    include=['embeddings', 'documents', 'metadatas'],
-    )
+    # results = collection.query(
+    # query_texts=["benchmark"],
+    # n_results=3,
+    # include=['embeddings', 'documents', 'metadatas'],
+    # )
