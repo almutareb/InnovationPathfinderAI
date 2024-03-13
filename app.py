@@ -3,6 +3,7 @@ from hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
+from innovation_pathfinder_ai.utils import collect_urls
 
 if __name__ == "__main__":
     
@@ -23,6 +24,7 @@ if __name__ == "__main__":
         result = agent_executor.invoke(
             {
                 "input": question,
+                "chat_history": history
             }
         )
         return result
@@ -32,20 +34,6 @@ if __name__ == "__main__":
             print("You upvoted this response: " + data.value)
         else:
             print("You downvoted this response: " + data.value)
-    
-    def collect_urls(data_list):
-        urls = []
-        for item in data_list:
-            # Check if item is a string and contains 'link:'
-            if isinstance(item, str) and 'link:' in item:
-                start = item.find('link:') + len('link: ')
-                end = item.find(',', start)
-                url = item[start:end if end != -1 else None].strip()
-                urls.append(url)
-            # Check if item is a dictionary and has 'Entry ID'
-            elif isinstance(item, dict) and 'Entry ID' in item:
-                urls.append(item['Entry ID'])
-        return urls
 
     css="""
     #col-container {max-width: 700px; margin-left: auto; margin-right: auto;}
