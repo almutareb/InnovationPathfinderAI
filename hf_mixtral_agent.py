@@ -21,11 +21,9 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
-from innovation_pathfinder_ai.utils import collect_urls
-# from langchain_community.chat_message_histories import ChatMessageHistory
-# from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain import PromptTemplate
+from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 
-# message_history = ChatMessageHistory()
 config = load_dotenv(".env")
 HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID')
@@ -44,7 +42,7 @@ llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
     )
 
 
-tools_all = [
+tools = [
     arxiv_search,
     wikipedia_search,
     google_search,
@@ -58,7 +56,9 @@ tools_papers = [
 ]
 
 
-prompt = hub.pull("hwchase17/react-json")
+prompt = PromptTemplate.from_template(
+    template=template_system
+)
 prompt = prompt.partial(
     tools=render_text_description(tools),
     tool_names=", ".join([t.name for t in tools]),
@@ -71,6 +71,7 @@ agent = (
     {
         "input": lambda x: x["input"],
         "agent_scratchpad": lambda x: format_log_to_str(x["intermediate_steps"]),
+        "chat_history": lambda x: x["chat_history"],
     }
     | prompt
     | chat_model_with_stop
@@ -78,9 +79,9 @@ agent = (
 )
 
 # instantiate AgentExecutor
-agent_executor_all = AgentExecutor(
+agent_executor = AgentExecutor(
     agent=agent, 
-    tools=tools_all, 
+    tools=tools, 
     verbose=True,
     max_iterations=6,       # cap number of iterations
     #max_execution_time=60,  # timout at 60 sec
@@ -98,65 +99,3 @@ agent_executor_noweb = AgentExecutor(
     return_intermediate_steps=True,
     handle_parsing_errors=True,
     )
-
-    
-if __name__ == "__main__":
-    
-    def add_text(history, text):
-        history = history + [(text, None)]
-        return history, ""
-
-    def bot(history):
-        response = infer(history[-1][0], history)
-        sources = collect_urls(all_sources)
-        src_list = '\n'.join(sources)
-        response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
-        intermediate_steps = response['intermediate_steps']
-        history[-1][1] = response_w_sources
-        return history
-
-    def infer(question, history):
-        query =  question
-        result = agent_executor_all.invoke(
-            {
-                "input": question,
-            }
-        )
-        return result
-
-    def vote(data: gr.LikeData):
-        if data.liked:
-            print("You upvoted this response: " + data.value)
-        else:
-            print("You downvoted this response: " + data.value)
-
-
-    css="""
-    #col-container {max-width: 700px; margin-left: auto; margin-right: auto;}
-    """
-
-    title = """
-    <div style="text-align: center;max-width: 700px;">
-        <p>Hello Dave, how can I help today?<br />
-    </div>
-    """
-
-    with gr.Blocks(theme=gr.themes.Soft()) as demo:
-        with gr.Tab("Google|Wikipedia|Arxiv"):
-            with gr.Column(elem_id="col-container"):
-                gr.HTML(title)
-                with gr.Row():
-                    question = gr.Textbox(label="Question", placeholder="Type your question and hit Enter ")
-                chatbot = gr.Chatbot([], elem_id="chatbot")
-                chatbot.like(vote, None, None)
-                clear = gr.Button("Clear")
-            question.submit(add_text, [chatbot, question], [chatbot, question], queue=False).then(
-                bot, chatbot, chatbot
-            )
-            clear.click(lambda: None, None, chatbot, queue=False)
-
-    demo.queue()
-    demo.launch(debug=True)
-
-
-    x = 0 # for debugging purposes
