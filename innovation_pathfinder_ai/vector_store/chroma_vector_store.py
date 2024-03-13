@@ -59,9 +59,6 @@ def add_markdown_to_collection(
     chunk_overlap (int) : the ammount of overlappping chunks
 
     """
-
-    file_path = "/workspaces/InnovationPathfinderAI/2402.17764.mmd"  # Replace 'example.md' with the path to your Markdown file
-
     markdown_document = read_markdown_file(markdown_file_location)
 
     headers_to_split_on = [
