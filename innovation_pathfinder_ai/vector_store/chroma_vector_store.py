@@ -13,11 +13,15 @@ import chromadb.utils.embedding_functions as embedding_functions
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from langchain_core.documents import Document
 from langchain.document_loaders import PyPDFLoader
+from langchain_community.vectorstores import Chroma
+
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
-from langchain_core.documents import Document
+
 import uuid
 import dotenv
 import os
@@ -159,66 +163,44 @@ def add_pdf_to_vector_store(
     
     loader = PyPDFLoader(pdf_file_location)
     
-    # text_splitter = CharacterTextSplitter(
-    #     chunk_size=text_chunk_size,
-    #     chunk_overlap=text_chunk_overlap,
-    #     )
-    
-    text_splitter = CharacterTextSplitter(
-    separator="\n\n",
-    chunk_size=1000,
-    chunk_overlap=200,
-    length_function=len,
-    is_separator_regex=False,
-)
-    
     documents.extend(loader.load())
     
     split_docs:list[Document] = []
     
-    for i in documents:
+    for document in documents:
         sub_docs = split_by_intervals(
-            i.page_content, 
+            document.page_content, 
             text_chunk_size,
             text_chunk_overlap
             )
         
-        for ii in sub_docs:
-                # Document()
-            fg = Document(ii, metadata=i.metadata)
-            split_docs.append(fg)
+        for sub_doc in sub_docs:
+            loaded_doc = Document(sub_doc, metadata=document.metadata)
+            split_docs.append(loaded_doc)
         
-        
-    
-    # texts = text_splitter.create_documents([state_of_the_union])
     
     client = chromadb.PersistentClient(
     # path=persist_directory,
     )
-    
     
     collection = client.get_or_create_collection(
     name=collection_name,
     )
     
     embed_data = embedding_functions.HuggingFaceEmbeddingFunction(
-        api_key= os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+        api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+        model_name= "sentence-transformers/all-MiniLM-L6-v2" # added model name for clariity
     )
     
     # create the open-source embedding function
     # embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     
-    docs = text_splitter.split_documents(documents)
-    
-    chunked_documents = text_splitter.split_documents(documents)
+    documents_page_content:list = [i.page_content for i in split_docs]
     
     
-    documents_page_content:list = [i.page_content for i in documents]
-    
-    
-    for i in range(0, len(documents)):
-        data = documents[i]
-        print(i)
+    for i in range(0, len(split_docs)):
+        data = split_docs[i]
+        
         collection.add(
             ids=[generate_uuid()], # give each document a uuid
             documents=documents_page_content[i], # contents of document
@@ -257,6 +239,34 @@ if __name__ == "__main__":
         collection_name="ArxivPapers",
         pdf_file_location=pdf_file_location,
     )
+    
+    #create the cliient using Chroma's library
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    # This is an example collection name
+    collection_name="ArxivPapers"
+    
+    # create the open-source embedding function
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    #method of integrating Chroma and Langchain
+    vector_db = Chroma(
+    client=client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    
+    query = "ai" # your query 
+    
+    # using your Chromadb as a retriever for langchain
+    retriever = vector_db.as_retriever()
+
+    # returning a list of documents
+    docs = retriever.get_relevant_documents(query)
     
     # pdf_file_location = "mydir/181000551.pdf"
     # pdf_file_location = "/workspaces/InnovationPathfinderAI/2402.17764.pdf"
