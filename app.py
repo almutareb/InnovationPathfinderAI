@@ -3,7 +3,10 @@ from hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
-from innovation_pathfinder_ai.utils import collect_urls
+from innovation_pathfinder_ai.utils.utils import extract_urls
+from innovation_pathfinder_ai.utils import logger
+
+logger = logger.get_console_logger("app")
 
 if __name__ == "__main__":
     
@@ -13,7 +16,7 @@ if __name__ == "__main__":
 
     def bot(history):
         response = infer(history[-1][0], history)
-        sources = collect_urls(all_sources)
+        sources = extract_urls(all_sources)
         src_list = '\n'.join(sources)
         response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
         history[-1][1] = response_w_sources
