@@ -9,3 +9,5 @@ gradio==3.48.0
 chromadb
 google_api_python_client
 pypdf2
+sqlmodel
+rich
