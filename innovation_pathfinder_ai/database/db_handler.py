@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, create_engine, Session, select
 from innovation_pathfinder_ai.database.schema import Sources
 from innovation_pathfinder_ai.utils.logger import get_console_logger
 
-sqlite_file_name = "database.db"
+sqlite_file_name = "innovation_pathfinder_ai/database/database.sqlite3"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=False)
 
