@@ -6,31 +6,32 @@ from langchain_community.utilities import WikipediaAPIWrapper
 #from langchain.tools import Tool
 from langchain_community.utilities import GoogleSearchAPIWrapper
 import arxiv
-
+import ast
 # hacky and should be replaced with a database
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
-from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
+from innovation_pathfinder_ai.utils.utils import (
+    parse_list_to_dicts, format_wiki_summaries, format_arxiv_documents, format_search_results
+)
+from innovation_pathfinder_ai.database.db_handler import (
+    add_many
+)
 
 @tool
 def arxiv_search(query: str) -> str:
     """Search arxiv database for scientific research papers and studies. This is your primary information source.
     always check it first when you search for information, before using any other tool."""
-    # return "LangChain"
     global all_sources
-    arxiv_retriever = ArxivRetriever(load_max_docs=2)
+    arxiv_retriever = ArxivRetriever(load_max_docs=3)
     data = arxiv_retriever.invoke(query)
     meta_data = [i.metadata for i in data]
-    # meta_data += all_sources
-    # all_sources += meta_data
-    all_sources += meta_data
-    
-    # formatted_info = format_info(entry_id, published, title, authors)
-    
-    # formatted_info = format_info_list(all_sources)
-    
-    return meta_data.__str__()
+    formatted_sources = format_arxiv_documents(data)
+    all_sources += formatted_sources
+    parsed_sources = parse_list_to_dicts(formatted_sources)
+    add_many(parsed_sources)
+  
+    return data.__str__()
 
 @tool
 def get_arxiv_paper(paper_id:str) -> None:
@@ -52,17 +53,13 @@ def get_arxiv_paper(paper_id:str) -> None:
 @tool
 def google_search(query: str) -> str:
     """Search Google for additional results when you can't answer questions using arxiv search or wikipedia search."""
-    # return "LangChain"
     global all_sources
     
     websearch = GoogleSearchAPIWrapper()
-    search_results:dict = websearch.results(query, 5)
-    
- 
-    #organic_source = search_results['organic_results']
-    # formatted_string = "Title: {title}, link: {link}, snippet: {snippet}".format(**organic_source)
-    cleaner_sources = ["Title: {title}, link: {link}, snippet: {snippet}".format(**i) for i in search_results]
-    
+    search_results:dict = websearch.results(query, 3)
+    cleaner_sources =format_search_results(search_results)
+    parsed_csources = parse_list_to_dicts(cleaner_sources)
+    add_many(parsed_csources)
     all_sources += cleaner_sources    
     
     return cleaner_sources.__str__()
@@ -75,5 +72,9 @@ def wikipedia_search(query: str) -> str:
     api_wrapper = WikipediaAPIWrapper()
     wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
     wikipedia_results = wikipedia_search.run(query)
-    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
-    return wikipedia_results
+    formatted_summaries = format_wiki_summaries(wikipedia_results)
+    all_sources += formatted_summaries
+    parsed_summaries = parse_list_to_dicts(formatted_summaries)
+    add_many(parsed_summaries)
+    
+    return wikipedia_results.__str__()
