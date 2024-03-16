@@ -1,15 +1,9 @@
 # HF libraries
 from langchain_community.llms import HuggingFaceEndpoint
-from langchain_core.prompts import ChatPromptTemplate
-from langchain import hub
-import gradio as gr
 from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad import format_log_to_str
-from langchain.agents.output_parsers import (
-    ReActJsonSingleInputOutputParser,
-)
+from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
 # Import things that are needed generically
-from typing import List, Dict
 from langchain.tools.render import render_text_description
 import os
 from dotenv import load_dotenv
@@ -17,12 +11,11 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
     arxiv_search, get_arxiv_paper, google_search, wikipedia_search
 )
 
-# hacky and should be replaced with a database
-from innovation_pathfinder_ai.source_container.container import (
-    all_sources
-)
 from langchain import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
+from innovation_pathfinder_ai.utils import logger
+
+logger = logger.get_console_logger("hf_mixtral_agent")
 
 config = load_dotenv(".env")
 HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
@@ -48,13 +41,6 @@ tools = [
     google_search,
 #    get_arxiv_paper,
     ]
-
-tools_papers = [
-    arxiv_search,
-    get_arxiv_paper,
-
-]
-
 
 prompt = PromptTemplate.from_template(
     template=template_system
@@ -82,17 +68,6 @@ agent = (
 agent_executor = AgentExecutor(
     agent=agent, 
     tools=tools, 
-    verbose=True,
-    max_iterations=6,       # cap number of iterations
-    #max_execution_time=60,  # timout at 60 sec
-    return_intermediate_steps=True,
-    handle_parsing_errors=True,
-    )
-
-# instantiate AgentExecutor
-agent_executor_noweb = AgentExecutor(
-    agent=agent, 
-    tools=tools_papers, 
     verbose=True,
     max_iterations=6,       # cap number of iterations
     #max_execution_time=60,  # timout at 60 sec
