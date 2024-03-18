@@ -28,8 +28,11 @@ from innovation_pathfinder_ai.database.db_handler import (
 from innovation_pathfinder_ai.vector_store.chroma_vector_store import (
     add_pdf_to_vector_store
 )
-
-from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
+from innovation_pathfinder_ai.utils.utils import (
+    create_wikipedia_urls_from_text, create_folder_if_not_exists,
+)
+import os
+# from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
 @tool
 def arxiv_search(query: str) -> str:
@@ -129,8 +132,11 @@ def embed_arvix_paper(paper_id:str) -> None:
     
     pdf_file_name = f"{number_without_period}.pdf"
     
+    pdf_directory = "./downloaded_papers"
+    create_folder_if_not_exists(pdf_directory)
+    
     # Download the PDF to a specified directory with a custom filename.
-    paper.download_pdf(dirpath="./downloaded_papers", filename=f"{number_without_period}.pdf")
+    paper.download_pdf(dirpath=pdf_directory, filename=f"{number_without_period}.pdf")
     
     client = chromadb.PersistentClient(
     # path=persist_directory,
@@ -143,8 +149,10 @@ def embed_arvix_paper(paper_id:str) -> None:
         model_name="all-MiniLM-L6-v2",
         )
     
+    full_path = os.path.join(pdf_directory, pdf_file_name)
+    
     add_pdf_to_vector_store(
         collection_name=collection_name,
-        pdf_file_location=pdf_file_name,
+        pdf_file_location=full_path,
     )
     
