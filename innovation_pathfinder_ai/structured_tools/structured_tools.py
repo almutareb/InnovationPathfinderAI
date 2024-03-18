@@ -5,8 +5,14 @@ from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 #from langchain.tools import Tool
 from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
 import arxiv
 import ast
+
+import chromadb
+
 # hacky and should be replaced with a database
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
@@ -17,6 +23,12 @@ from innovation_pathfinder_ai.utils.utils import (
 from innovation_pathfinder_ai.database.db_handler import (
     add_many
 )
+
+from innovation_pathfinder_ai.vector_store.chroma_vector_store import (
+    add_pdf_to_vector_store
+)
+
+from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
 @tool
 def arxiv_search(query: str) -> str:
@@ -72,9 +84,41 @@ def wikipedia_search(query: str) -> str:
     api_wrapper = WikipediaAPIWrapper()
     wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
     wikipedia_results = wikipedia_search.run(query)
-    formatted_summaries = format_wiki_summaries(wikipedia_results)
-    all_sources += formatted_summaries
-    parsed_summaries = parse_list_to_dicts(formatted_summaries)
-    add_many(parsed_summaries)
+    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
+    return wikipedia_results
+
+
+@tool
+def embed_arvix_paper(paper_id:str) -> None:
+    """Download a paper from axriv to download a paper please input 
+    the axriv id such as "1605.08386v1" This tool is named get_arxiv_paper
+    If you input "http://arxiv.org/abs/2312.02813", This will break the code. Also only do 
+    "2312.02813". In addition please download one paper at a time. Pleaase keep the inputs/output
+    free of additional information only have the id. 
+    """
+    # code from https://lukasschwab.me/arxiv.py/arxiv.html
+    paper = next(arxiv.Client().results(arxiv.Search(id_list=[paper_id])))
     
-    return wikipedia_results.__str__()
+    number_without_period = paper_id.replace('.', '')
+    
+    pdf_file_name = f"{number_without_period}.pdf"
+    
+    # Download the PDF to a specified directory with a custom filename.
+    paper.download_pdf(dirpath="./downloaded_papers", filename=f"{number_without_period}.pdf")
+    
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    collection_name="ArxivPapers"
+    #store using envar
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    add_pdf_to_vector_store(
+        collection_name=collection_name,
+        pdf_file_location=pdf_file_name,
+    )
+    
