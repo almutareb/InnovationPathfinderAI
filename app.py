@@ -1,5 +1,8 @@
 import gradio as gr
 from hf_mixtral_agent import agent_executor
+from innovation_pathfinder_ai.agents.hf_mixtral_agent_no_google_search import (
+    no_google_search_agent_executor
+)
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
@@ -22,9 +25,15 @@ if __name__ == "__main__":
         history[-1][1] = response_w_sources
         return history
 
-    def infer(question, history):
+    def infer(question, history,agent):
         query =  question
-        result = agent_executor.invoke(
+        # result = agent_executor.invoke(
+        #     {
+        #         "input": question,
+        #         "chat_history": history
+        #     }
+        # )
+        result = agent.invoke(
             {
                 "input": question,
                 "chat_history": history
