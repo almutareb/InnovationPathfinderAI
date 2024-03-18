@@ -8,6 +8,7 @@ from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
+from langchain_community.vectorstores import Chroma
 import arxiv
 import ast
 
@@ -86,6 +87,31 @@ def wikipedia_search(query: str) -> str:
     wikipedia_results = wikipedia_search.run(query)
     all_sources += create_wikipedia_urls_from_text(wikipedia_results)
     return wikipedia_results
+
+@tool
+def chroma_search(query:str) -> str:
+    """Search the Arxiv vector store for docmunets and relevent chunks"""
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    collection_name="ArxivPapers"
+    #store using envar
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    vector_db = Chroma(
+    client=client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    
+    retriever = vector_db.as_retriever()
+    docs = retriever.get_relevant_documents(query)
+    
+    return docs.__str__()
 
 
 @tool
