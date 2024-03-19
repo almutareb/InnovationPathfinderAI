@@ -17,11 +17,18 @@ from innovation_pathfinder_ai.utils.utils import (
 from innovation_pathfinder_ai.database.db_handler import (
     add_many
 )
+from langchain_community.vectorstores import Chroma
+from langchain.tools.retriever import create_retriever_tool
+from langchain_community.embeddings import HuggingFaceEmbeddings
+import chromadb
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
 
 @tool
 def arxiv_search(query: str) -> str:
-    """Search arxiv database for scientific research papers and studies. This is your primary information source.
-    always check it first when you search for information, before using any other tool."""
+    """Search arxiv database for scientific research papers and studies. This is your primary online information source.
+    always check it first when you search for information, before using any other online tool."""
     global all_sources
     arxiv_retriever = ArxivRetriever(load_max_docs=3)
     data = arxiv_retriever.invoke(query)
@@ -78,3 +85,33 @@ def wikipedia_search(query: str) -> str:
     add_many(parsed_summaries)
     
     return wikipedia_results.__str__()
+
+@tool
+def memory_search(query:str) -> str:
+    """Search the memory vector store for existing knowledge and relevent pervious researches. \
+        This is your primary source to start your search with checking what you already have learned from the past, before going online."""
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+
+    collection_name="agent_mem"
+    #store using envar
+
+    # embedding_function = HuggingFaceEmbeddings(
+    #     model_name="sentence-transformers/multi-qa-mpnet-base-dot-v1",
+    # )
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+    )
+    
+
+    vector_db = Chroma(
+        client=client, # client for Chroma
+        collection_name=collection_name,
+        embedding_function=embedding_function,
+    )
+
+    retriever = vector_db.as_retriever()
+    docs = retriever.get_relevant_documents(query)
+
+    return docs.__str__()

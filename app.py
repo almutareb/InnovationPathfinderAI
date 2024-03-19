@@ -3,6 +3,7 @@ from hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
+from innovation_pathfinder_ai.vector_store.memory_chroma_db import add_to_memory
 from innovation_pathfinder_ai.utils.utils import extract_urls
 from innovation_pathfinder_ai.utils import logger
 
@@ -19,6 +20,8 @@ if __name__ == "__main__":
         sources = extract_urls(all_sources)
         src_list = '\n'.join(sources)
         response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
+        inter_dict = {'response': response, 'sources': ''}
+        add_to_memory(inter_dict)
         history[-1][1] = response_w_sources
         return history
 
