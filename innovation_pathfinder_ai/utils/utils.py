@@ -1,5 +1,6 @@
 import hashlib
 import datetime
+import os
 
 from innovation_pathfinder_ai.utils import logger
 
@@ -169,3 +170,16 @@ def hash_text(text: str) -> str:
 
 def convert_timestamp_to_datetime(timestamp: str) -> str:
     return datetime.datetime.fromtimestamp(int(timestamp)).strftime("%Y-%m-%d %H:%M:%S")
+
+def create_folder_if_not_exists(folder_path: str) -> None:
+    """
+    Create a folder if it doesn't already exist.
+
+    Args:
+    - folder_path (str): The path of the folder to create.
+    """
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        print(f"Folder '{folder_path}' created.")
+    else:
+        print(f"Folder '{folder_path}' already exists.")
