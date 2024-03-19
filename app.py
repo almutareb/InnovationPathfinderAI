@@ -20,7 +20,7 @@ if __name__ == "__main__":
         sources = extract_urls(all_sources)
         src_list = '\n'.join(sources)
         response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
-        inter_dict = {'response': response, 'sources': ''}
+        inter_dict = {'response': response['output'], 'sources': sources}
         add_to_memory(inter_dict)
         history[-1][1] = response_w_sources
         return history
