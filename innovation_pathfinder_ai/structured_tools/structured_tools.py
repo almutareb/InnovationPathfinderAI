@@ -36,7 +36,7 @@ from configparser import ConfigParser
 # from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
 config = ConfigParser()
-config.read('config.ini')
+config.read('innovation_pathfinder_ai/config.ini')
 
 @tool
 def memory_search(query:str) -> str:
