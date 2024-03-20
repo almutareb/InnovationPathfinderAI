@@ -19,7 +19,7 @@ import os
 
 dotenv.load_dotenv()
 config = ConfigParser()
-config.read('config.ini')
+config.read('innovation_pathfinder_ai/config.ini')
 
 logger = logger.get_console_logger("app")
 
