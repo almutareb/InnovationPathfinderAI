@@ -6,6 +6,10 @@ from innovation_pathfinder_ai.source_container.container import (
 from innovation_pathfinder_ai.utils.utils import extract_urls
 from innovation_pathfinder_ai.utils import logger
 
+from innovation_pathfinder_ai.utils.utils import (
+    generate_uuid    
+)
+
 logger = logger.get_console_logger("app")
 
 if __name__ == "__main__":

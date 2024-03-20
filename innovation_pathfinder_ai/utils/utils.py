@@ -1,6 +1,7 @@
 import hashlib
 import datetime
 import os
+import uuid
 
 from innovation_pathfinder_ai.utils import logger
 
@@ -183,3 +184,12 @@ def create_folder_if_not_exists(folder_path: str) -> None:
         print(f"Folder '{folder_path}' created.")
     else:
         print(f"Folder '{folder_path}' already exists.")
+        
+def generate_uuid() -> str:
+    """
+    Generate a UUID (Universally Unique Identifier) and return it as a string.
+
+    Returns:
+        str: A UUID string.
+    """
+    return str(uuid.uuid4())        
