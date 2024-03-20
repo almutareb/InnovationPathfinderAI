@@ -32,12 +32,69 @@ from innovation_pathfinder_ai.utils.utils import (
     create_wikipedia_urls_from_text, create_folder_if_not_exists,
 )
 import os
+from configparser import ConfigParser
 # from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
+
+config = ConfigParser()
+config.read('config.ini')
+
+@tool
+def memory_search(query:str) -> str:
+    """Search the memory vector store for existing knowledge and relevent pervious researches. \
+        This is your primary source to start your search with checking what you already have learned from the past, before going online."""
+    # Since we have more than one collections we should change the name of this tool
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    collection_name = config.get('main', 'CONVERSATION_COLLECTION_NAME')
+    #store using envar
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    vector_db = Chroma(
+    client=client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    
+    retriever = vector_db.as_retriever()
+    docs = retriever.get_relevant_documents(query)
+    
+    return docs.__str__()
+
+@tool
+def knowledgeBase_search(query:str) -> str:
+    """Search the internal knowledge base for research papers and relevent chunks"""
+    # Since we have more than one collections we should change the name of this tool
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    collection_name="ArxivPapers"
+    #store using envar
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    vector_db = Chroma(
+    client=client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    
+    retriever = vector_db.as_retriever()
+    docs = retriever.get_relevant_documents(query)
+    
+    return docs.__str__()
 
 @tool
 def arxiv_search(query: str) -> str:
-    """Search arxiv database for scientific research papers and studies. This is your primary information source.
-    always check it first when you search for information, before using any other tool."""
+    """Search arxiv database for scientific research papers and studies. This is your primary online information source.
+    always check it first when you search for additional information, before using any other online tool."""
     global all_sources
     arxiv_retriever = ArxivRetriever(load_max_docs=3)
     data = arxiv_retriever.invoke(query)
@@ -64,59 +121,6 @@ def get_arxiv_paper(paper_id:str) -> None:
     
     # Download the PDF to a specified directory with a custom filename.
     paper.download_pdf(dirpath="./downloaded_papers", filename=f"{number_without_period}.pdf")
-    
-    
-@tool
-def google_search(query: str) -> str:
-    """Search Google for additional results when you can't answer questions using arxiv search or wikipedia search."""
-    global all_sources
-    
-    websearch = GoogleSearchAPIWrapper()
-    search_results:dict = websearch.results(query, 3)
-    cleaner_sources =format_search_results(search_results)
-    parsed_csources = parse_list_to_dicts(cleaner_sources)
-    add_many(parsed_csources)
-    all_sources += cleaner_sources    
-    
-    return cleaner_sources.__str__()
-
-@tool
-def wikipedia_search(query: str) -> str:
-    """Search Wikipedia for additional information to expand on research papers or when no papers can be found."""
-    global all_sources
-
-    api_wrapper = WikipediaAPIWrapper()
-    wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
-    wikipedia_results = wikipedia_search.run(query)
-    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
-    return wikipedia_results
-
-@tool
-def chroma_search(query:str) -> str:
-    """Search the Arxiv vector store for docmunets and relevent chunks"""
-    # Since we have more than one collections we should change the name of this tool
-    client = chromadb.PersistentClient(
-    # path=persist_directory,
-    )
-    
-    collection_name="ArxivPapers"
-    #store using envar
-    
-    embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
-        )
-    
-    vector_db = Chroma(
-    client=client, # client for Chroma
-    collection_name=collection_name,
-    embedding_function=embedding_function,
-    )
-    
-    retriever = vector_db.as_retriever()
-    docs = retriever.get_relevant_documents(query)
-    
-    return docs.__str__()
-
 
 @tool
 def embed_arvix_paper(paper_id:str) -> None:
@@ -158,27 +162,26 @@ def embed_arvix_paper(paper_id:str) -> None:
     )
     
 @tool
-def conversational_search(query:str) -> str:
-    """Search from past conversations  for docmunets and relevent chunks"""
-    # Since we have more than one collections we should change the name of this tool
-    client = chromadb.PersistentClient(
-    # path=persist_directory,
-    )
+def wikipedia_search(query: str) -> str:
+    """Search Wikipedia for additional information to expand on research papers or when no papers can be found."""
+    global all_sources
+
+    api_wrapper = WikipediaAPIWrapper()
+    wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
+    wikipedia_results = wikipedia_search.run(query)
+    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
+    return wikipedia_results
+
+@tool
+def google_search(query: str) -> str:
+    """Search Google for additional results when you can't answer questions using arxiv search or wikipedia search."""
+    global all_sources
     
-    collection_name=os.getenv("CONVERSATION_COLLECTION_NAME")
-    #store using envar
+    websearch = GoogleSearchAPIWrapper()
+    search_results:dict = websearch.results(query, 3)
+    cleaner_sources =format_search_results(search_results)
+    parsed_csources = parse_list_to_dicts(cleaner_sources)
+    add_many(parsed_csources)
+    all_sources += cleaner_sources    
     
-    embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
-        )
-    
-    vector_db = Chroma(
-    client=client, # client for Chroma
-    collection_name=collection_name,
-    embedding_function=embedding_function,
-    )
-    
-    retriever = vector_db.as_retriever()
-    docs = retriever.get_relevant_documents(query)
-    
-    return docs.__str__()
+    return cleaner_sources.__str__()

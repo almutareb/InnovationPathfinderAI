@@ -11,3 +11,4 @@ google_api_python_client
 pypdf2
 sqlmodel
 rich
+fastapi
