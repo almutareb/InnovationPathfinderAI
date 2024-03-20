@@ -11,7 +11,7 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
     arxiv_search, get_arxiv_paper, google_search, wikipedia_search
 )
 
-from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 from innovation_pathfinder_ai.utils import logger
 
