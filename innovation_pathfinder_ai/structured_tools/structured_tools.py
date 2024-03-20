@@ -94,6 +94,7 @@ def wikipedia_search(query: str) -> str:
 @tool
 def chroma_search(query:str) -> str:
     """Search the Arxiv vector store for docmunets and relevent chunks"""
+    # Since we have more than one collections we should change the name of this tool
     client = chromadb.PersistentClient(
     # path=persist_directory,
     )
