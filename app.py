@@ -6,9 +6,37 @@ from innovation_pathfinder_ai.source_container.container import (
 from innovation_pathfinder_ai.utils.utils import extract_urls
 from innovation_pathfinder_ai.utils import logger
 
+from innovation_pathfinder_ai.utils.utils import (
+    generate_uuid    
+)
+from langchain_community.vectorstores import Chroma
+
+import chromadb
+import dotenv
+import os
+
+dotenv.load_dotenv()
+
 logger = logger.get_console_logger("app")
 
+def initialize_chroma_db() -> Chroma:
+    collection_name=os.getenv("CONVERSATION_COLLECTION_NAME")
+    
+    client = chromadb.PersistentClient()
+    
+    collection = client.get_or_create_collection(
+    name=collection_name,
+    )
+    
+    return collection
+
+
+
 if __name__ == "__main__":
+    
+    current_id = generate_uuid()
+    
+    db = initialize_chroma_db()
     
     def add_text(history, text):
         history = history + [(text, None)]
@@ -30,6 +58,18 @@ if __name__ == "__main__":
                 "chat_history": history
             }
         )
+        
+        db.add(
+            ids=[current_id],
+            documents=[result['output']],
+            metadatas=[
+                {
+                    "query":query,
+                    "intermediate_steps":result['intermediate_steps'].__str__()
+                }
+            ]
+        )
+        
         return result
 
     def vote(data: gr.LikeData):

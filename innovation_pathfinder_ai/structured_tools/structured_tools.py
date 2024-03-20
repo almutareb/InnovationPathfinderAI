@@ -94,6 +94,7 @@ def wikipedia_search(query: str) -> str:
 @tool
 def chroma_search(query:str) -> str:
     """Search the Arxiv vector store for docmunets and relevent chunks"""
+    # Since we have more than one collections we should change the name of this tool
     client = chromadb.PersistentClient(
     # path=persist_directory,
     )
@@ -156,3 +157,28 @@ def embed_arvix_paper(paper_id:str) -> None:
         pdf_file_location=full_path,
     )
     
+@tool
+def conversational_search(query:str) -> str:
+    """Search from past conversations  for docmunets and relevent chunks"""
+    # Since we have more than one collections we should change the name of this tool
+    client = chromadb.PersistentClient(
+    # path=persist_directory,
+    )
+    
+    collection_name=os.getenv("CONVERSATION_COLLECTION_NAME")
+    #store using envar
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        )
+    
+    vector_db = Chroma(
+    client=client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    
+    retriever = vector_db.as_retriever()
+    docs = retriever.get_relevant_documents(query)
+    
+    return docs.__str__()
