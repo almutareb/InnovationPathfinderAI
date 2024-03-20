@@ -71,7 +71,7 @@ if __name__ == "__main__":
             metadatas=[
                 {
                     "query":query,
-                    "intermediate_steps":result['intermediate_steps'].__str__()
+                    "sources":result['sources'].__str__()
                 }
             ]
         )
