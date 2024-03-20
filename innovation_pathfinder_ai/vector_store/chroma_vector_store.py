@@ -30,7 +30,7 @@ import os
 
 dotenv.load_dotenv()
 config = ConfigParser()
-config.read('config.ini')
+config.read('innovation_pathfinder_ai/config.ini')
 
 VECTOR_DATABASE_LOCATION = config.get('main', 'VECTOR_DATABASE_LOCATION')
 
