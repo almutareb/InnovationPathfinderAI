@@ -1,3 +1,4 @@
+from fastapi import FastAPI
 import gradio as gr
 from hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
@@ -18,6 +19,8 @@ import os
 dotenv.load_dotenv()
 
 logger = logger.get_console_logger("app")
+
+app = FastAPI()
 
 def initialize_chroma_db() -> Chroma:
     collection_name=os.getenv("CONVERSATION_COLLECTION_NAME")
@@ -102,8 +105,7 @@ if __name__ == "__main__":
             )
             clear.click(lambda: None, None, chatbot, queue=False)
 
-    demo.queue()
-    demo.launch(debug=True, share=True)
-
+    demo.queue().launch(debug=True, share=True)
 
     x = 0 # for debugging purposes
+    app = gr.mount_gradio_app(app, demo, path="/")
