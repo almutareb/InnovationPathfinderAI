@@ -15,7 +15,7 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_core.documents import Document
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 
 from langchain_community.embeddings.sentence_transformer import (
@@ -24,14 +24,15 @@ from langchain_community.embeddings.sentence_transformer import (
 from innovation_pathfinder_ai.utils.utils import (
     generate_uuid    
 )
-
+from configparser import ConfigParser
 import dotenv
 import os
 
 dotenv.load_dotenv()
+config = ConfigParser()
+config.read('config.ini')
 
-
-VECTOR_DATABASE_LOCATION = os.getenv("VECTOR_DATABASE_LOCATION")
+VECTOR_DATABASE_LOCATION = config.get('main', 'VECTOR_DATABASE_LOCATION')
 
 
 

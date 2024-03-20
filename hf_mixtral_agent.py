@@ -8,10 +8,10 @@ from langchain.tools.render import render_text_description
 import os
 from dotenv import load_dotenv
 from innovation_pathfinder_ai.structured_tools.structured_tools import (
-    arxiv_search, get_arxiv_paper, google_search, wikipedia_search
+    arxiv_search, get_arxiv_paper, google_search, wikipedia_search, knowledgeBase_search, memory_search
 )
 
-from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 from innovation_pathfinder_ai.utils import logger
 
@@ -36,6 +36,8 @@ llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
 
 
 tools = [
+    memory_search,
+    knowledgeBase_search,
     arxiv_search,
     wikipedia_search,
     google_search,
