@@ -21,8 +21,10 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
+from innovation_pathfinder_ai.utils.utils import (
+    generate_uuid    
+)
 
-import uuid
 import dotenv
 import os
 
@@ -31,14 +33,7 @@ dotenv.load_dotenv()
 
 VECTOR_DATABASE_LOCATION = os.getenv("VECTOR_DATABASE_LOCATION")
 
-def generate_uuid() -> str:
-    """
-    Generate a UUID (Universally Unique Identifier) and return it as a string.
 
-    Returns:
-        str: A UUID string.
-    """
-    return str(uuid.uuid4())
 
 def read_markdown_file(file_path: str) -> str:
     """
