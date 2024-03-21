@@ -40,8 +40,6 @@ def initialize_chroma_db() -> Chroma:
 
 if __name__ == "__main__":
     
-    current_id = generate_uuid()
-    
     db = initialize_chroma_db()
     
     def add_text(history, text):
@@ -52,7 +50,21 @@ if __name__ == "__main__":
         response = infer(history[-1][0], history)
         sources = extract_urls(all_sources)
         src_list = '\n'.join(sources)
-        response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
+        current_id = generate_uuid()
+        db.add(
+            ids=[current_id],
+            documents=[response['output']],
+            metadatas=[
+                {
+                    "human_message":history[-1][0],
+                    "sources": src_list
+                }
+            ]
+        )
+        if not sources:
+            response_w_sources = response['output']+"\n\n\n Sources:  \n\n\n Internal knowledge base"
+        else:
+            response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
         history[-1][1] = response_w_sources
         return history
 
@@ -63,19 +75,7 @@ if __name__ == "__main__":
                 "input": question,
                 "chat_history": history
             }
-        )
-        
-        db.add(
-            ids=[current_id],
-            documents=[result['output']],
-            metadatas=[
-                {
-                    "query":query,
-                    "sources":result['sources'].__str__()
-                }
-            ]
-        )
-        
+        )        
         return result
 
     def vote(data: gr.LikeData):

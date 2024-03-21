@@ -32,7 +32,7 @@ def create_wikipedia_urls_from_text(text):
         # Construct the URL and add it to the list
         url = f"https://en.wikipedia.org/wiki/{url_title}"
         urls.append(url)
-        print(urls)
+        #print(urls)
     
     return urls
 

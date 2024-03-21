@@ -1,8 +1,13 @@
 from sqlmodel import SQLModel, create_engine, Session, select
 from innovation_pathfinder_ai.database.schema import Sources
 from innovation_pathfinder_ai.utils.logger import get_console_logger
+from configparser import ConfigParser
+# from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
-sqlite_file_name = "innovation_pathfinder_ai/database/database.sqlite3"
+config = ConfigParser()
+config.read('innovation_pathfinder_ai/config.ini')
+
+sqlite_file_name = config.get('main', 'SOURCES_CACHE')
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=False)
 
