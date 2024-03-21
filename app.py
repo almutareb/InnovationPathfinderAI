@@ -56,12 +56,15 @@ if __name__ == "__main__":
             documents=[response['output']],
             metadatas=[
                 {
-                    "query":history[-1][0],
-                    "sources":src_list
+                    "human_message":history[-1][0],
+                    "sources": src_list
                 }
             ]
         )
-        response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
+        if not sources:
+            response_w_sources = response['output']+"\n\n\n Sources:  \n\n\n Internal knowledge base"
+        else:
+            response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
         history[-1][1] = response_w_sources
         return history
 
