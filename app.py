@@ -108,7 +108,8 @@ if __name__ == "__main__":
                 chatbot = gr.Chatbot([], 
                                      elem_id="AI Assistant",
                                      bubble_full_width=False,
-                                     avatar_images=(None, (os.path.join(os.path.dirname(__file__), "innovation_pathfinder_ai/avatar.png"))),)
+                                     avatar_images=(None, "./innovation_pathfinder_ai/assets/avatar.png"),
+                                     height=480,)
                 chatbot.like(vote, None, None)
                 clear = gr.Button("Clear")
             question.submit(add_text, [chatbot, question], [chatbot, question], queue=False).then(
@@ -119,7 +120,7 @@ if __name__ == "__main__":
                 gr.Markdown("Nothing yet...")
 
     demo.queue()
-    demo.launch(debug=True, favicon_path=os.path.join(os.path.dirname(__file__),"innovation_pathfinder_ai/favicon.ico"), share=True)
+    demo.launch(debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
 
     x = 0 # for debugging purposes
     app = gr.mount_gradio_app(app, demo, path="/")
