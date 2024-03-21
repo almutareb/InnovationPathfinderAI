@@ -169,7 +169,11 @@ def wikipedia_search(query: str) -> str:
     api_wrapper = WikipediaAPIWrapper()
     wikipedia_search = WikipediaQueryRun(api_wrapper=api_wrapper)
     wikipedia_results = wikipedia_search.run(query)
-    all_sources += create_wikipedia_urls_from_text(wikipedia_results)
+    formatted_summaries = format_wiki_summaries(wikipedia_results)
+    all_sources += formatted_summaries
+    parsed_summaries = parse_list_to_dicts(formatted_summaries)
+    add_many(parsed_summaries)
+    #all_sources += create_wikipedia_urls_from_text(wikipedia_results)
     return wikipedia_results
 
 @tool
