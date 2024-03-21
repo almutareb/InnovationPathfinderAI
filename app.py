@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import gradio as gr
+from gradio.themes.base import Base
 from hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
@@ -92,26 +93,33 @@ if __name__ == "__main__":
     """
 
     title = """
-    <div style="text-align: center;max-width: 700px;">
-        <p>Hello Dave, how can I help today?<br />
+    <div style="text-align: left ;max-width: 700px;">
+        <p>Hello Human, I am your AI knowledge research assistant. <br> I can help you research and explore topics across ArXiv, Wikipedia and the internet.<br />
     </div>
     """
 
     with gr.Blocks(theme=gr.themes.Soft()) as demo:
-        with gr.Tab("Google|Wikipedia|Arxiv"):
+       # with gr.Tab("Google|Wikipedia|Arxiv"):
             with gr.Column(elem_id="col-container"):
                 gr.HTML(title)
                 with gr.Row():
-                    question = gr.Textbox(label="Question", placeholder="Type your question and hit Enter ")
-                chatbot = gr.Chatbot([], elem_id="chatbot")
+                    question = gr.Textbox(label="Question", 
+                                          placeholder="Type your question and hit Enter",)
+                chatbot = gr.Chatbot([], 
+                                     elem_id="AI Assistant",
+                                     bubble_full_width=False,
+                                     avatar_images=(None, (os.path.join(os.path.dirname(__file__), "innovation_pathfinder_ai/avatar.png"))),)
                 chatbot.like(vote, None, None)
                 clear = gr.Button("Clear")
             question.submit(add_text, [chatbot, question], [chatbot, question], queue=False).then(
                 bot, chatbot, chatbot
             )
             clear.click(lambda: None, None, chatbot, queue=False)
+            with gr.Accordion("Open for More!", open=False):
+                gr.Markdown("Nothing yet...")
 
-    demo.queue().launch(debug=True, share=True)
+    demo.queue()
+    demo.launch(debug=True, share=True)
 
     x = 0 # for debugging purposes
     app = gr.mount_gradio_app(app, demo, path="/")
