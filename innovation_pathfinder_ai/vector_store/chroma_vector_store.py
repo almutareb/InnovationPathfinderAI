@@ -31,9 +31,7 @@ import os
 dotenv.load_dotenv()
 config = ConfigParser()
 config.read('innovation_pathfinder_ai/config.ini')
-
-VECTOR_DATABASE_LOCATION = config.get('main', 'VECTOR_DATABASE_LOCATION')
-
+persist_directory = config.get('main', 'VECTOR_DATABASE_LOCATION')
 
 
 def read_markdown_file(file_path: str) -> str:
@@ -91,7 +89,7 @@ def add_markdown_to_collection(
     splits = text_splitter.split_documents(md_header_splits)
 
     client = chromadb.PersistentClient(
-        # path=persist_directory,
+         path=persist_directory,
         )
 
 
@@ -176,7 +174,7 @@ def add_pdf_to_vector_store(
         
     
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     collection = client.get_or_create_collection(
@@ -210,7 +208,7 @@ if __name__ == "__main__":
     collection_name="ArxivPapers"
     
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     # delete existing collection
@@ -238,7 +236,7 @@ if __name__ == "__main__":
     
     #create the cliient using Chroma's library
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     # This is an example collection name
