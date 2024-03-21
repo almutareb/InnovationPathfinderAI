@@ -12,3 +12,4 @@ pypdf2
 sqlmodel
 rich
 fastapi
+sentence-transformers
