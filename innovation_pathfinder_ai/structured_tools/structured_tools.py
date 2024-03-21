@@ -37,6 +37,7 @@ from configparser import ConfigParser
 
 config = ConfigParser()
 config.read('innovation_pathfinder_ai/config.ini')
+persist_directory = config.get('main', 'VECTOR_DATABASE_LOCATION')
 
 @tool
 def memory_search(query:str) -> str:
@@ -44,7 +45,7 @@ def memory_search(query:str) -> str:
         This is your primary source to start your search with checking what you already have learned from the past, before going online."""
     # Since we have more than one collections we should change the name of this tool
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     collection_name = config.get('main', 'CONVERSATION_COLLECTION_NAME')
@@ -70,7 +71,7 @@ def knowledgeBase_search(query:str) -> str:
     """Search the internal knowledge base for research papers and relevent chunks"""
     # Since we have more than one collections we should change the name of this tool
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     collection_name="ArxivPapers"
@@ -144,7 +145,7 @@ def embed_arvix_paper(paper_id:str) -> None:
     paper.download_pdf(dirpath=pdf_directory, filename=f"{number_without_period}.pdf")
     
     client = chromadb.PersistentClient(
-    # path=persist_directory,
+     path=persist_directory,
     )
     
     collection_name="ArxivPapers"
