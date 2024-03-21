@@ -93,12 +93,12 @@ if __name__ == "__main__":
     """
 
     title = """
-    <div style="text-align: left ;max-width: 700px;">
-        <p>Hello Human, I am your AI knowledge research assistant. <br> I can help you research and explore topics across ArXiv, Wikipedia and the internet.<br />
+    <div style="text-align:left;">
+        <p>Hello Human, I am your AI knowledge research assistant. I can explore topics across ArXiv, Wikipedia and use Google search.<br />
     </div>
     """
 
-    with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(theme=gr.themes.Soft(), title="AlfredAI - AI Knowledge Research Assistant") as demo:
        # with gr.Tab("Google|Wikipedia|Arxiv"):
             with gr.Column(elem_id="col-container"):
                 gr.HTML(title)
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 gr.Markdown("Nothing yet...")
 
     demo.queue()
-    demo.launch(debug=True, share=True)
+    demo.launch(debug=True, favicon_path=os.path.join(os.path.dirname(__file__),"innovation_pathfinder_ai/favicon.ico"), share=True)
 
     x = 0 # for debugging purposes
     app = gr.mount_gradio_app(app, demo, path="/")
