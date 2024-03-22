@@ -14,7 +14,10 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
 from langchain.prompts import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 from innovation_pathfinder_ai.utils import logger
+from langchain.globals import set_llm_cache
+from langchain.cache import SQLiteCache
 
+set_llm_cache(SQLiteCache(database_path=".cache.db"))
 logger = logger.get_console_logger("hf_mixtral_agent")
 
 config = load_dotenv(".env")
