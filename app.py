@@ -61,7 +61,7 @@ if __name__ == "__main__":
             metadatas=[
                 {
                     "human_message":history[-1][0],
-                    "sources": src_list
+                    "sources": 'Internal Knowledge Base From: \n\n' + src_list
                 }
             ]
         )
@@ -70,6 +70,7 @@ if __name__ == "__main__":
         else:
             response_w_sources = response['output']+"\n\n\n Sources: \n\n\n"+src_list
         history[-1][1] = response_w_sources
+        all_sources.clear()
         return history
 
     def infer(question, history):
