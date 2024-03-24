@@ -171,3 +171,4 @@ obj
 *.zip
 *.faiss
 *.pkl
+*.db
