@@ -8,7 +8,6 @@
 # https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore
 
 import chromadb
-import chromadb.utils.embedding_functions as embedding_functions
 
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
