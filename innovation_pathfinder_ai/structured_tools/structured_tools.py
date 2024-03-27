@@ -52,7 +52,7 @@ def memory_search(query:str) -> str:
     #store using envar
     
     embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name=os.getenv("EMBEDDING_MODEL"),
         )
     
     vector_db = Chroma(
@@ -78,7 +78,7 @@ def knowledgeBase_search(query:str) -> str:
     #store using envar
     
     embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name=os.getenv("EMBEDDING_MODEL"),
         )
     
     vector_db = Chroma(
@@ -152,7 +152,7 @@ def embed_arvix_paper(paper_id:str) -> None:
     #store using envar
     
     embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name=os.getenv("EMBEDDING_MODEL"),
         )
     
     full_path = os.path.join(pdf_directory, pdf_file_name)
