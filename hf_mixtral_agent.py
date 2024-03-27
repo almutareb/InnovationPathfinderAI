@@ -14,6 +14,7 @@ from innovation_pathfinder_ai.structured_tools.structured_tools import (
 from langchain import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 from innovation_pathfinder_ai.utils import logger
+from langchain.agents import AgentType, initialize_agent, load_tools
 
 logger = logger.get_console_logger("hf_mixtral_agent")
 
@@ -35,12 +36,17 @@ llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
     )
 
 
-tools = [
-    arxiv_search,
-    wikipedia_search,
-    google_search,
-#    get_arxiv_paper,
-    ]
+# tools = [
+#     arxiv_search,
+#     wikipedia_search,
+#     google_search,
+# #    get_arxiv_paper,
+#     ]
+
+tools = load_tools(
+    ["human", "llm-math"],
+    llm=llm,
+)
 
 prompt = PromptTemplate.from_template(
     template=template_system
@@ -74,3 +80,5 @@ agent_executor = AgentExecutor(
     return_intermediate_steps=True,
     handle_parsing_errors=True,
     )
+
+x = 0
