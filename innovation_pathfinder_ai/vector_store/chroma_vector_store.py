@@ -8,7 +8,6 @@
 # https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore
 
 import chromadb
-import chromadb.utils.embedding_functions as embedding_functions
 
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
@@ -99,9 +98,9 @@ def add_markdown_to_collection(
         name=collection_name,
         )
     
-    embed_data = embedding_functions.HuggingFaceEmbeddingFunction(
-        api_key= os.getenv("HUGGINGFACEHUB_API_TOKEN"),
-    )
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name=os.getenv("EMBEDDING_MODEL"),
+        )
 
     documents_page_content:list = [i.page_content for i in splits]
 
@@ -111,7 +110,7 @@ def add_markdown_to_collection(
         collection.add(
             ids=[generate_uuid()], # give each document a uuid
             documents=documents_page_content[i], # contents of document
-            embeddings=embed_data.embed_with_retries(documents_page_content[i]),
+            embeddings=embedding_function(documents_page_content[i]),
             metadatas=data.metadata,  # type: ignore
         )
         
@@ -181,13 +180,9 @@ def add_pdf_to_vector_store(
     name=collection_name,
     )
     
-    embed_data = embedding_functions.HuggingFaceEmbeddingFunction(
-        api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN"),
-        model_name= "sentence-transformers/all-MiniLM-L6-v2" # added model name for clariity
-    )
-    
-    # create the open-source embedding function
-    # embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name=os.getenv("EMBEDDING_MODEL"),
+        )
     
     documents_page_content:list = [i.page_content for i in split_docs]
     
@@ -198,7 +193,7 @@ def add_pdf_to_vector_store(
         collection.add(
             ids=[generate_uuid()], # give each document a uuid
             documents=documents_page_content[i], # contents of document
-            embeddings=embed_data.embed_with_retries(documents_page_content[i]),
+            embeddings=embedding_function(documents_page_content[i]),
             metadatas=data.metadata,  # type: ignore
         )
     
@@ -244,7 +239,7 @@ if __name__ == "__main__":
     
     # create the open-source embedding function
     embedding_function = SentenceTransformerEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name=os.getenv("EMBEDDING_MODEL"),
         )
     
     #method of integrating Chroma and Langchain
