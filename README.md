@@ -25,7 +25,8 @@ Documents are embedded and store inside of a Chroma vector store
 with agents our application is able to discover and refine the information it collects based on
 the needs and sentiment of the user.
 
-## Agent Tool
+## Agent Tools
+The tools our agents have access to. More is being created
 
 - `embed_arvix_paper` This tool is able to add [arvix papers](https://arxiv.org/) to the Chroma Vector Store
 
