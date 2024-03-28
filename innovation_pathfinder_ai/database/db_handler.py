@@ -1,7 +1,6 @@
 from sqlmodel import SQLModel, create_engine, Session, select
 from innovation_pathfinder_ai.database.schema import Sources
 from innovation_pathfinder_ai.utils.logger import get_console_logger
-from configparser import ConfigParser
 import os
 from dotenv import load_dotenv
 
