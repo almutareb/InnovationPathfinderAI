@@ -14,21 +14,18 @@ from innovation_pathfinder_ai.utils.utils import (
 from langchain_community.vectorstores import Chroma
 
 import chromadb
-from configparser import ConfigParser
 import dotenv
 import os
 
 dotenv.load_dotenv()
-config = ConfigParser()
-config.read('innovation_pathfinder_ai/config.ini')
-persist_directory = config.get('main', 'VECTOR_DATABASE_LOCATION')
+persist_directory = os.getenv('VECTOR_DATABASE_LOCATION')
 
 logger = logger.get_console_logger("app")
 
 app = FastAPI()
 
 def initialize_chroma_db() -> Chroma:
-    collection_name = config.get('main', 'CONVERSATION_COLLECTION_NAME')
+    collection_name = os.getenv('CONVERSATION_COLLECTION_NAME')
     
     client = chromadb.PersistentClient(
         path=persist_directory

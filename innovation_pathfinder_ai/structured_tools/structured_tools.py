@@ -32,12 +32,9 @@ from innovation_pathfinder_ai.utils.utils import (
     create_wikipedia_urls_from_text, create_folder_if_not_exists,
 )
 import os
-from configparser import ConfigParser
 # from innovation_pathfinder_ai.utils import create_wikipedia_urls_from_text
 
-config = ConfigParser()
-config.read('innovation_pathfinder_ai/config.ini')
-persist_directory = config.get('main', 'VECTOR_DATABASE_LOCATION')
+persist_directory = os.getenv('VECTOR_DATABASE_LOCATION')
 
 @tool
 def memory_search(query:str) -> str:
@@ -48,7 +45,7 @@ def memory_search(query:str) -> str:
      path=persist_directory,
     )
     
-    collection_name = config.get('main', 'CONVERSATION_COLLECTION_NAME')
+    collection_name = os.getenv('CONVERSATION_COLLECTION_NAME')
     #store using envar
     
     embedding_function = SentenceTransformerEmbeddings(
