@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import gradio as gr
 from gradio.themes.base import Base
-from hf_mixtral_agent import agent_executor
+from innovation_pathfinder_ai.agents.hf_mixtral_agent import agent_executor
 from innovation_pathfinder_ai.source_container.container import (
     all_sources
 )
