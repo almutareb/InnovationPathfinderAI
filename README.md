@@ -22,9 +22,9 @@ Documents are embedded and store inside of a Chroma vector store
 
 ### Document Loaders
 For our vector store we have several loaders
-- pdf loaders
-- web loaders
-- markdown loaders
+- pdf loader
+- web loader
+- markdown loader
 
 ## Agents
 
