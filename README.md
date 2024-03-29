@@ -20,6 +20,12 @@ want to enable people with the capable to discover and manage knowledge bases.
 ## Vector Store
 Documents are embedded and store inside of a Chroma vector store
 
+### Document Loaders
+For our vector store we have several loaders
+- pdf loaders
+- web loaders
+- markdown loaders
+
 ## Agents
 
 with agents our application is able to discover and refine the information it collects based on
