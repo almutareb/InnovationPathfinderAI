@@ -1,0 +1,82 @@
+from fastapi import FastAPI
+import gradio as gr
+from gradio.themes.base import Base
+from innovation_pathfinder_ai.agents.hf_mixtral_agent import agent_executor
+from innovation_pathfinder_ai.source_container.container import (
+    all_sources
+)
+from innovation_pathfinder_ai.utils.utils import extract_urls
+from innovation_pathfinder_ai.utils import logger
+
+from innovation_pathfinder_ai.utils.utils import (
+    generate_uuid
+)
+from langchain_community.vectorstores import Chroma
+
+import chromadb
+import dotenv
+import os
+import time  # Import time for optional typing simulation
+
+dotenv.load_dotenv()
+persist_directory = os.getenv('VECTOR_DATABASE_LOCATION')
+
+logger = logger.get_console_logger("app")
+
+app = FastAPI()
+
+def initialize_chroma_db() -> Chroma:
+    collection_name = os.getenv('CONVERSATION_COLLECTION_NAME')
+
+    client = chromadb.PersistentClient(
+        path=persist_directory
+    )
+
+    collection = client.get_or_create_collection(
+        name=collection_name,
+    )
+
+    return collection
+
+
+if __name__ == "__main__":
+
+    db = initialize_chroma_db()
+
+    def add_text(history, text):
+        history = history + [(text, None)]
+        return history, ""
+
+    def bot(history):
+        yield history, ""  # Immediately display the user message
+
+        response = infer(history[-1][0], history)
+        # ... (rest of the code remains mostly the same)
+
+        for character in response['output']:
+            history[-1][1] += character
+            yield history  # Stream the response character by character
+            time.sleep(0.05)  # Optional delay for typing simulation
+
+    def infer(question, history):
+        query = question
+        result = agent_executor.invoke(
+            {
+                "input": question,
+                "chat_history": history
+            }
+        )
+        return result
+
+    # ... (rest of the code remains the same)
+
+    question.submit(add_text, [chatbot, question], [chatbot, question], queue=False).then(
+        bot, chatbot, chatbot
+    ).then(
+        lambda: None, None, chatbot  # Re-enable input field after streaming
+    )
+
+    demo.queue()  # Enable queuing for streaming
+    demo.launch(debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
+
+    app = gr.mount_gradio_app(app, demo, path="/")
