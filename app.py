@@ -1,16 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
+from fastapi.responses import HTMLResponse
 import gradio as gr
 from gradio.themes.base import Base
 from innovation_pathfinder_ai.agents.hf_mixtral_agent import agent_executor
-from innovation_pathfinder_ai.source_container.container import (
-    all_sources
-)
-from innovation_pathfinder_ai.utils.utils import extract_urls
-from innovation_pathfinder_ai.utils import logger
-
-from innovation_pathfinder_ai.utils.utils import (
-    generate_uuid   
-)
+from innovation_pathfinder_ai.source_container.container import all_sources
+from innovation_pathfinder_ai.utils.utils import extract_urls, generate_uuid
 from langchain_community.vectorstores import Chroma
 
 import chromadb
@@ -19,8 +13,6 @@ import os
 
 dotenv.load_dotenv()
 persist_directory = os.getenv('VECTOR_DATABASE_LOCATION')
-
-logger = logger.get_console_logger("app")
 
 app = FastAPI()
 
@@ -36,8 +28,6 @@ def initialize_chroma_db() -> Chroma:
     )
     
     return collection
-
-
 
 if __name__ == "__main__":
     
@@ -121,15 +111,4 @@ if __name__ == "__main__":
     demo.launch(debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
 
     x = 0 # for debugging purposes
-    # Endpoint to stream responses
-@app.post("/stream")
-async def stream_responses(request_data: dict):
-    return Response(content=generate_response_with_streaming(request_data), media_type="application/json")
-
-if __name__ == "__main__":
-    # Run your FastAPI app
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-    
     app = gr.mount_gradio_app(app, demo, path="/")
-

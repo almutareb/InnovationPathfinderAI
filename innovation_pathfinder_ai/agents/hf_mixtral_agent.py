@@ -1,4 +1,3 @@
-# HF libraries
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad import format_log_to_str
@@ -30,22 +29,20 @@ LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
 LANGCHAIN_PROJECT = os.getenv('LANGCHAIN_PROJECT')
 
 # Load the model from the Hugging Face Hub
-llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", 
-                          temperature=0.1, 
+llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
+                          temperature=0.1,
                           max_new_tokens=1024,
                           repetition_penalty=1.2,
-                          return_full_text=False
-    )
-
+                          return_full_text=False)
 
 tools = [
     memory_search,
     knowledgeBase_search,
     arxiv_search,
     wikipedia_search,
-    #google_search,//
-#    get_arxiv_paper,
-    ]
+    # google_search,
+    # get_arxiv_paper,
+]
 
 prompt = PromptTemplate.from_template(
     template=template_system
@@ -56,7 +53,28 @@ prompt = prompt.partial(
 )
 
 
-# define the agent
+async def generate_response_with_streaming(chat_history, input_text):
+    """
+    Generates response with character-by-character streaming.
+
+    Args:
+        chat_history (list): List of tuples containing user input and response.
+        input_text (str): User's current input text.
+
+    Yields:
+        str: Characters generated one by one for streaming.
+    """
+    for char in llm.generate_text(
+        prompt=prompt.apply(input_text=input_text, chat_history=chat_history),
+        stop=["\nObservation"],
+        max_length=1024,
+        temperature=0.1,
+        repetition_penalty=1.2,
+        return_past_key_values=True,
+    )["generated_text"]:
+        yield char
+
+# Define the agent using the custom function
 chat_model_with_stop = llm.bind(stop=["\nObservation"])
 agent = (
     {
@@ -69,25 +87,13 @@ agent = (
     | ReActJsonSingleInputOutputParser()
 )
 
-# instantiate AgentExecutor
+# Instantiate AgentExecutor with a custom function for post-processing
 agent_executor = AgentExecutor(
-    agent=agent, 
-    tools=tools, 
+    agent=agent,
+    tools=tools,
     verbose=True,
-    max_iterations=10,       # cap number of iterations
-    #max_execution_time=60,  # timout at 60 sec
+    max_iterations=10,  # Cap number of iterations
+    # max_execution_time=60,  # Timeout at 60 sec
     return_intermediate_steps=True,
     handle_parsing_errors=True,
-    )
-
-# define the streaming function
-async def generate_response_with_streaming(request_data: dict):
-    async def generate_response():
-        result = await agent_executor.invoke({
-            "input": request_data["input"],
-            "chat_history": request_data["chat_history"]
-        })
-        # Yield each character of the output
-        for char in result["output"]:
-            yield {"response_chunk": char}
-    return generate_response()
+)
