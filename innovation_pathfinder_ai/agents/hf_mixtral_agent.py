@@ -43,7 +43,7 @@ tools = [
     knowledgeBase_search,
     arxiv_search,
     wikipedia_search,
-    google_search,
+    #google_search,//
 #    get_arxiv_paper,
     ]
 
@@ -79,3 +79,15 @@ agent_executor = AgentExecutor(
     return_intermediate_steps=True,
     handle_parsing_errors=True,
     )
+
+# define the streaming function
+async def generate_response_with_streaming(request_data: dict):
+    async def generate_response():
+        result = await agent_executor.invoke({
+            "input": request_data["input"],
+            "chat_history": request_data["chat_history"]
+        })
+        # Yield each character of the output
+        for char in result["output"]:
+            yield {"response_chunk": char}
+    return generate_response()
