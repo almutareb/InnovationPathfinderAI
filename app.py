@@ -9,7 +9,7 @@ from innovation_pathfinder_ai.utils.utils import extract_urls
 from innovation_pathfinder_ai.utils import logger
 
 from innovation_pathfinder_ai.utils.utils import (
-    generate_uuid    
+    generate_uuid   
 )
 from langchain_community.vectorstores import Chroma
 
@@ -121,4 +121,15 @@ if __name__ == "__main__":
     demo.launch(debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
 
     x = 0 # for debugging purposes
+    # Endpoint to stream responses
+@app.post("/stream")
+async def stream_responses(request_data: dict):
+    return Response(content=generate_response_with_streaming(request_data), media_type="application/json")
+
+if __name__ == "__main__":
+    # Run your FastAPI app
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
     app = gr.mount_gradio_app(app, demo, path="/")
+
