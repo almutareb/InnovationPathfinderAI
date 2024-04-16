@@ -7,20 +7,6 @@ from innovation_pathfinder_ai.utils.image_processing.image_processing import (
     extract_images_from_pdf
 )
 
-import os
-import shutil
-import fitz
-from unittest.mock import patch
-import pytest
-import requests
-from pathlib import Path
-import os
-import shutil
-import fitz
-from unittest.mock import patch
-import pytest
-import requests
-from pathlib import Path
 
 @pytest.fixture
 def pdf_file(tmp_path):
