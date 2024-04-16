@@ -1,18 +1,20 @@
+from typing import List, Dict, NoReturn
 import os
-from typing import NoReturn
 import fitz
 
-def extract_images_from_pdf(pdf_path: str, output_folder: str) -> NoReturn:
+def extract_images_from_pdf(pdf_path: str, output_folder: str) -> List[Dict[str, str]]:
     """
-    Extract images from a PDF file and save them as individual image files.
+    Extract images from a PDF file and return a list of dictionaries with the image file path and the page number.
 
     Args:
         pdf_path (str): The path to the input PDF file.
         output_folder (str): The directory where the extracted images will be saved.
 
     Returns:
-        None
+        List[Dict[str, str]]: A list of dictionaries, where each dictionary has the keys "image_location" and "page_of_image".
     """
+    image_info = []
+
     # Open the PDF file
     doc = fitz.open(pdf_path)
 
@@ -34,7 +36,14 @@ def extract_images_from_pdf(pdf_path: str, output_folder: str) -> NoReturn:
             with open(image_filename, "wb") as image_file:
                 image_file.write(image_bytes)
 
+            # Add the image information to the list
+            image_info.append({
+                "image_location": image_filename,
+                "page_of_image": page_num + 1
+            })
             print(f"Extracted image {image_index} from page {page_num + 1} to {image_filename}")
 
     # Close the PDF file
     doc.close()
+
+    return image_info
