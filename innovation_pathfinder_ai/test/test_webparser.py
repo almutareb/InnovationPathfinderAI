@@ -7,11 +7,6 @@ import dotenv
 
 dotenv.load_dotenv()
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-# Add the project root directory to the Python path
-sys.path.append(project_root)
-
 from innovation_pathfinder_ai.vector_store.chroma_vector_store import Document
 from innovation_pathfinder_ai.vector_store.chroma_vector_store import chunk_web_data
 
