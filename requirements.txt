@@ -13,4 +13,4 @@ sqlmodel
 rich
 fastapi
 sentence-transformers
-PyMuPDF #for image extraction
+PyMuPDF # for image extraction
