@@ -27,6 +27,10 @@ from innovation_pathfinder_ai.utils.utils import (
     generate_uuid    
 )
 
+from innovation_pathfinder_ai.utils.image_processing.image_processing import (
+    caption_image
+)
+
 from typing import List, Optional
 from langchain_core.documents import Document # for typing 
 
@@ -238,6 +242,20 @@ def chunk_web_data(
     )
     
     return data
+
+def add_images(
+    collection_name:str,
+    image_file_location:str,
+    vector_store_client:chromadb.PersistentClient
+    
+):
+    caption_images_result = caption_image(image_file_location)
+    vector_db = Chroma(
+    client=vector_store_client, # client for Chroma
+    collection_name=collection_name,
+    embedding_function=embedding_function,
+    )
+    pass
     
 if __name__ == "__main__":
     
