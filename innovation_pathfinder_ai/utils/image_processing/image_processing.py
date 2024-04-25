@@ -1,6 +1,14 @@
 from typing import List, Dict, NoReturn
 import os
 import fitz
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+IMAGE_CAPTIONING_MODEL_URL = os.getenv("IMAGE_CAPTIONING_MODEL_URL")
+
 
 def extract_images_from_pdf(pdf_path: str, output_folder: str) -> List[Dict[str, str]]:
     """
@@ -47,3 +55,21 @@ def extract_images_from_pdf(pdf_path: str, output_folder: str) -> List[Dict[str,
     doc.close()
 
     return image_info
+
+def caption_image(filename:str)-> List[Dict]:
+    """
+    Captions an image using the Hugging Face Hub API.
+
+    Args:
+        filename (str): The path to the image file to be captioned.
+
+    Returns:
+        List[Dict]: A list of dictionaries containing caption information for the image.
+    """
+    headers = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
+    
+    with open(filename, "rb") as f:
+        data = f.read()
+    
+    response = requests.post(IMAGE_CAPTIONING_MODEL_URL, headers=headers, data=data)
+    return response.json()
