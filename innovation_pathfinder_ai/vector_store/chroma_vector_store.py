@@ -309,3 +309,4 @@ if __name__ == "__main__":
     # n_results=3,
     # include=['embeddings', 'documents', 'metadatas'],
     # )
+    
