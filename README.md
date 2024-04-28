@@ -25,6 +25,7 @@ For our vector store we have several loaders
 - pdf loader
 - web loader
 - markdown loader
+- image loader
 
 ## Agents
 
