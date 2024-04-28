@@ -69,7 +69,9 @@ def caption_image(filename:str)-> List[Dict]:
     headers = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
     
     with open(filename, "rb") as f:
+        # Reset the file pointer to the beginning of the file
+        # f.seek(0)
         data = f.read()
-    
+        
     response = requests.post(IMAGE_CAPTIONING_MODEL_URL, headers=headers, data=data)
     return response.json()
