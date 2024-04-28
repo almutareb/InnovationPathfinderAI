@@ -13,7 +13,7 @@ from innovation_pathfinder_ai.utils.image_processing.image_processing import(
 )
 
 from vector_store.chroma_vector_store import (
-    add_images
+    add_image_to_vector_store
 )
 
 class TestVectorStore(unittest.TestCase):
@@ -43,11 +43,13 @@ class TestVectorStore(unittest.TestCase):
         self.tmp_dir.cleanup()
         
     def test_data(self):
-        url = "https://upload.wikimedia.org/wikipedia/commons/8/8f/The-Transformer-model-architecture.png"
-        response = requests.get(url)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+        image_url = "https://www.python.org/static/community_logos/python-logo-master-v3-TM.png"
+        response = requests.get(image_url)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
             temp_file.write(response.content)  # Write the image content to the temporary file
             temp_file_name = temp_file.name  # Get the temporary file name
-            x = add_images(temp_file_name)
-            xx = 0
-        pass
+            add_image_to_vector_store(
+                "TestCollectionName",
+                temp_file_name,
+                self.vector_db,
+                )

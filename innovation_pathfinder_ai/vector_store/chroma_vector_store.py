@@ -31,7 +31,7 @@ from innovation_pathfinder_ai.utils.image_processing.image_processing import (
     caption_image
 )
 
-from typing import List, Optional
+from typing import List, Optional, NoReturn
 from langchain_core.documents import Document # for typing 
 
 import dotenv
@@ -243,19 +243,43 @@ def chunk_web_data(
     
     return data
 
-def add_images(
+def add_image_to_vector_store(
     collection_name:str,
     image_file_location:str,
-    vector_store_client:chromadb.PersistentClient
-    
-):
+    vector_store_client:chromadb.PersistentClient,
+) -> NoReturn:
     caption_images_result = caption_image(image_file_location)
-    vector_db = Chroma(
-    client=vector_store_client, # client for Chroma
-    collection_name=collection_name,
-    embedding_function=embedding_function,
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name=os.getenv("EMBEDDING_MODEL"),
+        )
+    
+    client = chromadb.PersistentClient(
+     path=persist_directory,
     )
-    pass
+    
+    collection = client.get_or_create_collection(
+    name=collection_name,
+    )
+    
+    captioned_image_metadata = {
+        "image_location" : image_file_location
+         
+    }
+    
+    caption_document:Document = Document(
+        page_content=caption_images_result[0]['generated_text'],
+        metadata=captioned_image_metadata,
+    )
+    
+    collection.add(
+            ids=[generate_uuid()], # give each document a uuid
+            documents=[caption_document.page_content], # contents of document
+            embeddings=[embedding_function.embed_query(caption_document.page_content[0])],
+            metadatas=[captioned_image_metadata],  # type: ignore
+        )
+    
+    
     
 if __name__ == "__main__":
     
