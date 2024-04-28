@@ -44,8 +44,9 @@ class TestVectorStore(unittest.TestCase):
         
     def test_add_image_to_vector_store(self):
         image_url = "https://www.python.org/static/community_logos/python-logo-master-v3-TM.png"
+        image_extention_name = os.path.basename(image_url)
         response = requests.get(image_url)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=image_extention_name) as temp_file:
             temp_file.write(response.content)  # Write the image content to the temporary file
             temp_file_name = temp_file.name  # Get the temporary file name
             add_image_to_vector_store(
