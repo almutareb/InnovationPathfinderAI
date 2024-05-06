@@ -27,7 +27,11 @@ from innovation_pathfinder_ai.utils.utils import (
     generate_uuid    
 )
 
-from typing import List, Optional
+from innovation_pathfinder_ai.utils.image_processing.image_processing import (
+    caption_image, extract_images_from_pdf
+)
+
+from typing import List, Optional, NoReturn
 from langchain_core.documents import Document # for typing 
 
 import dotenv
@@ -238,6 +242,96 @@ def chunk_web_data(
     )
     
     return data
+
+def add_image_to_vector_store(
+    collection_name:str,
+    image_file_location:str,
+    vector_store_client:chromadb.PersistentClient,
+) -> NoReturn:
+    caption_images_result = caption_image(image_file_location)
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name=os.getenv("EMBEDDING_MODEL"),
+        )
+    
+    client = chromadb.PersistentClient(
+     path=persist_directory,
+    )
+    
+    collection = client.get_or_create_collection(
+    name=collection_name,
+    )
+    
+    captioned_image_metadata = {
+        "image_location" : image_file_location
+         
+    }
+    
+    caption_document:Document = Document(
+        page_content=caption_images_result[0]['generated_text'],
+        metadata=captioned_image_metadata,
+    )
+    
+    collection.add(
+            ids=[generate_uuid()], # give each document a uuid
+            documents=[caption_document.page_content], # contents of document
+            embeddings=[embedding_function.embed_query(caption_document.page_content[0])],
+            metadatas=[captioned_image_metadata],  # type: ignore
+        )
+    
+    
+def add_images_to_vector_store(
+    collection_name:str,
+    pdf_location:str,
+    pdf_images_location:str,
+    vector_store_client:chromadb.PersistentClient)-> NoReturn:
+    
+    meta_data = extract_images_from_pdf(
+        pdf_path=pdf_location,
+        output_folder=pdf_images_location,
+        )
+    
+    embedding_function = SentenceTransformerEmbeddings(
+        model_name=os.getenv("EMBEDDING_MODEL"),
+        )
+    
+    client = chromadb.PersistentClient(
+     path=persist_directory,
+    )
+    
+    collection = client.get_or_create_collection(
+    name=collection_name,
+    )
+    
+    captioned_images = []
+    for i in meta_data:
+        temp = caption_image(i["image_location"])
+        captioned_images.append(temp)
+        
+    
+    dict_with_added_captions = []
+    for d, caption in zip(meta_data, captioned_images):
+        d["image_caption"] = caption[0]['generated_text']
+        dict_with_added_captions.append(d)
+        
+    
+    doc_list = []
+    for i in dict_with_added_captions:
+        temp = Document(
+            page_content=i['image_caption'],
+            metadata=i
+        )
+        doc_list.append(temp)
+    
+    collection.add(
+            ids=[generate_uuid() for i in doc_list], # give each document a uuid
+            documents=[i.page_content for i in doc_list], # contents of document
+            embeddings=[embedding_function.embed_query(i.page_content) for i in doc_list],
+            metadatas=[i.metadata for i in doc_list],  # type: ignore
+        )
+    
+    
+    
     
 if __name__ == "__main__":
     
