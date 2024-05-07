@@ -14,10 +14,17 @@ import os
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
+
+from innovation_pathfinder_ai.utils.image_processing.image_processing import (
+    caption_image, extract_images_from_pdf
+)
+
+
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import WebBaseLoader
 
 # for typing 
-from typing import List, Any
+from typing import List, Any, Optional, NoReturn
 from chromadb.api import BaseAPI, ClientAPI
 from chromadb.api.models.Collection import Collection
 from langchain_core.documents import Document
@@ -123,6 +130,64 @@ class ChromaInnovationVectorStore:
                 split_docs.append(loaded_doc)
             
         return split_docs
+    
+    def create_web_data(
+        self,
+        urls: List[str],
+        chunk_overlap: Optional[int] = 50,
+        tokens_per_chunk: Optional[int] = None,
+        model_name: str = os.getenv("EMBEDDING_MODEL"),
+        chunk_size: int = 1000,
+        ) -> List[Document]:
+        """
+        ## Summary
+        This function is used to chunk webpages
+        
+        ## Arguments
+        urls list[str] : a list of urls  to be chunks
+        chunk_size int : the chunking size
+        model_name str : the embedding model used to chunk will use the environment default unless overwritten
+        tokens_per_chunk int | None : the amount of chunks per token paramter inhereted from `SentenceTransformersTokenTextSplitter`
+        chunk_size int : the size of chunks per `Document`
+
+        ## Return
+        it may be a List[Document] or None if it is a List[Document] then these chunks will be 
+        embedded wiht a different function or method
+        """
+        
+        text_splitter = SentenceTransformersTokenTextSplitter(
+            chunk_overlap=chunk_overlap,
+            tokens_per_chunk=tokens_per_chunk,
+            model_name=model_name,
+            chunk_size=chunk_size
+        )
+        
+        loader = WebBaseLoader(urls)
+
+        data = loader.load_and_split(
+            text_splitter=text_splitter
+        )
+        
+        return data
+    
+    def add_image_to_vector_store(
+        self,
+        image_file_location:str,
+    ) -> NoReturn:
+        caption_images_result = caption_image(image_file_location)
+        
+        captioned_image_metadata = {
+            "image_location" : image_file_location
+            
+        }
+        
+        caption_document:Document = Document(
+            page_content=caption_images_result[0]['generated_text'],
+            metadata=captioned_image_metadata,
+        )
+        
+        return caption_document
+
 
     @staticmethod
     def split_by_intervals(s: str, interval: int, overlapped: int = 0) -> list:
