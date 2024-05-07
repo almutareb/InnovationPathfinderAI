@@ -89,7 +89,7 @@ class ChromaInnovationVectorStore:
         pdf_file_location:str,
         text_chunk_size=1000,
         text_chunk_overlap=10,
-        ) -> None:
+        ) -> List[Document]:
         """
         ## Summary
         given the location of a pdf file this will chunk it's contents
