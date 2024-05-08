@@ -172,22 +172,22 @@ class ChromaInnovationVectorStore:
     
     def create_documents_from_images(
         self,
-        image_file_location:str,
+        image_file_location: List[str],
     ) -> List[Document]:
-        caption_images_result = caption_image(image_file_location)
+        captioned_images_results = [caption_image(location) for location in image_file_location]
         
-        captioned_image_metadata = {
-            "image_location" : image_file_location
-            
-        }
+        captioned_documents = []
+        for result, location in zip(captioned_images_results, image_file_location):
+            captioned_image_metadata = {
+                "image_location": location
+            }
+            caption_document = Document(
+                page_content=result[0]['generated_text'],
+                metadata=captioned_image_metadata,
+            )
+            captioned_documents.append(caption_document)
         
-        caption_document:Document = Document(
-            page_content=caption_images_result[0]['generated_text'],
-            metadata=captioned_image_metadata,
-        )
-        caption_document = [caption_document]
-        
-        return caption_document
+        return captioned_documents
 
 
     @staticmethod
