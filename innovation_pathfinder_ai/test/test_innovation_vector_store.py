@@ -83,7 +83,7 @@ def test_create_documents_from_web(chroma_innovation_vector_store):
 
 def test_create_documents_from_images(chroma_innovation_vector_store):
     # Calling the method to be tested
-    result = chroma_innovation_vector_store.create_documents_from_images("assets/sample_screenshot.png")
+    result = chroma_innovation_vector_store.create_documents_from_images(["assets/sample_screenshot.png"])
     # Assertions
     # assert result.page_content.startswith("Sample caption")
     # assert "image_location" in result.metadata
