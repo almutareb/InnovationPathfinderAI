@@ -131,7 +131,7 @@ class ChromaInnovationVectorStore:
             
         return split_docs
     
-    def create_web_data(
+    def create_documents_from_web(
         self,
         urls: List[str],
         chunk_overlap: Optional[int] = 50,
@@ -170,10 +170,10 @@ class ChromaInnovationVectorStore:
         
         return data
     
-    def add_image_to_vector_store(
+    def create_documents_from_images(
         self,
         image_file_location:str,
-    ) -> NoReturn:
+    ) -> List[Document]:
         caption_images_result = caption_image(image_file_location)
         
         captioned_image_metadata = {
@@ -185,6 +185,7 @@ class ChromaInnovationVectorStore:
             page_content=caption_images_result[0]['generated_text'],
             metadata=captioned_image_metadata,
         )
+        caption_document = [caption_document]
         
         return caption_document
 
