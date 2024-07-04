@@ -6,6 +6,7 @@ def read_requirements():
     with open('requirements.txt') as req_file:
         return req_file.read().splitlines()
 
+
 authors = {
     "Asaad Almutareb": "asaad.almutareb@artiquare.com",
     "Isayah Culbertson": "isayah@artiquare.com",
@@ -26,6 +27,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+  
     python_requires='>=3.6',  # specify the minimum Python version required
     install_requires=read_requirements(),  # read dependencies from requirements.txt
+
 )
