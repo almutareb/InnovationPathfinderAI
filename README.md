@@ -42,3 +42,8 @@ The tools our agents have access to. More is being created
 - `wikipedia_search` search wikipedia
 
 - `google_search` search google
+
+
+## Installation
+
+It is recommended to install `torch` seperately before installing
