@@ -12,7 +12,7 @@ from innovation_pathfinder_ai.utils.image_processing.image_processing import(
     caption_image
 )
 
-from vector_store.chroma_vector_store import (
+from innovation_pathfinder_ai.vector_store.chroma_vector_store import (
     add_image_to_vector_store
 )
 
