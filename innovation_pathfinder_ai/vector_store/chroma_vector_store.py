@@ -18,7 +18,7 @@ from langchain_community.document_loaders import WebBaseLoader
 
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,

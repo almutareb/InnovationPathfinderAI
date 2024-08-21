@@ -11,7 +11,7 @@ from innovation_pathfinder_ai.utils import logger
 from innovation_pathfinder_ai.utils.utils import (
     generate_uuid    
 )
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 import chromadb
 import dotenv
