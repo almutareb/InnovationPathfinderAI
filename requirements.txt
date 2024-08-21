@@ -1,5 +1,6 @@
 langchain-community
 langchain
+langchain-huggingface
 google-search-results
 langchainhub
 text_generation
