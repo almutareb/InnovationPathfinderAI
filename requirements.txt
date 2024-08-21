@@ -5,7 +5,7 @@ langchainhub
 text_generation
 arxiv
 wikipedia
-gradio==3.48.0
+gradio
 chromadb
 google_api_python_client
 pypdf2
