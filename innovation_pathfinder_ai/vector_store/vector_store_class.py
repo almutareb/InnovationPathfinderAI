@@ -28,7 +28,7 @@ from typing import List, Any, Optional, NoReturn
 from chromadb.api import BaseAPI, ClientAPI
 from chromadb.api.models.Collection import Collection
 from langchain_core.documents import Document
-from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 dotenv.load_dotenv()
 

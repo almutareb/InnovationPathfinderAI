@@ -1,6 +1,7 @@
 langchain-community
 langchain
 langchain-huggingface
+langchain-chroma
 google-search-results
 langchainhub
 text_generation

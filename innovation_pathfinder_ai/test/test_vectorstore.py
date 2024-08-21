@@ -4,7 +4,7 @@ from langchain_community.embeddings.sentence_transformer import (
 import os
 import unittest
 import tempfile
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 import chromadb
 import requests
 
