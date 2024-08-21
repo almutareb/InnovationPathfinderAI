@@ -1,5 +1,5 @@
 # HF libraries
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint
 from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
@@ -15,7 +15,7 @@ from langchain.prompts import PromptTemplate
 from innovation_pathfinder_ai.templates.react_json_with_memory import template_system
 from innovation_pathfinder_ai.utils import logger
 from langchain.globals import set_llm_cache
-from langchain.cache import SQLiteCache
+from langchain_community.cache import SQLiteCache
 
 set_llm_cache(SQLiteCache(database_path=".cache.db"))
 logger = logger.get_console_logger("hf_mixtral_agent")

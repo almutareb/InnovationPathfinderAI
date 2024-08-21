@@ -88,7 +88,7 @@ from botocore import UNSIGNED
 from botocore.client import Config
 import zipfile
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 
 # Load environment variables from a .env file
