@@ -5,9 +5,8 @@ from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 #from langchain.tools import Tool
 from langchain_community.utilities import GoogleSearchAPIWrapper
-from langchain_community.embeddings.sentence_transformer import (
-    SentenceTransformerEmbeddings,
-)
+#from langchain_community.embeddings.sentence_transformer import (SentenceTransformerEmbeddings,)
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 import arxiv
 import ast
@@ -48,10 +47,12 @@ def memory_search(query:str) -> str:
     collection_name = os.getenv('CONVERSATION_COLLECTION_NAME')
     #store using envar
     
-    embedding_function = SentenceTransformerEmbeddings(
-        model_name=os.getenv("EMBEDDING_MODEL"),
-        )
+    # embedding_function = SentenceTransformerEmbeddings(
+    #     model_name=os.getenv("EMBEDDING_MODEL"),
+    #     )
     
+    embedding_function = HuggingFaceEmbeddings(model_name=os.getenv("EMBEDDING_MODEL"))
+
     vector_db = Chroma(
     client=client, # client for Chroma
     collection_name=collection_name,
@@ -74,10 +75,11 @@ def knowledgeBase_search(query:str) -> str:
     collection_name="ArxivPapers"
     #store using envar
     
-    embedding_function = SentenceTransformerEmbeddings(
-        model_name=os.getenv("EMBEDDING_MODEL"),
-        )
-    
+    # embedding_function = SentenceTransformerEmbeddings(
+    #     model_name=os.getenv("EMBEDDING_MODEL"),
+    #     )
+    embedding_function = HuggingFaceEmbeddings(model_name=os.getenv("EMBEDDING_MODEL"))
+
     vector_db = Chroma(
     client=client, # client for Chroma
     collection_name=collection_name,
@@ -148,9 +150,9 @@ def embed_arvix_paper(paper_id:str) -> None:
     collection_name="ArxivPapers"
     #store using envar
     
-    embedding_function = SentenceTransformerEmbeddings(
-        model_name=os.getenv("EMBEDDING_MODEL"),
-        )
+    # embedding_function = SentenceTransformerEmbeddings(
+    #     model_name=os.getenv("EMBEDDING_MODEL"),
+    #     )
     
     full_path = os.path.join(pdf_directory, pdf_file_name)
     

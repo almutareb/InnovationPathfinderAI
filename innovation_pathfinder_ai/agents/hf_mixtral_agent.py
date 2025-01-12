@@ -24,13 +24,14 @@ config = load_dotenv(".env")
 HUGGINGFACEHUB_API_TOKEN = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 GOOGLE_CSE_ID = os.getenv('GOOGLE_CSE_ID')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "mistralai/Mistral-Nemo-Instruct-2407")
 LANGCHAIN_TRACING_V2 = "true"
 LANGCHAIN_ENDPOINT = "https://api.smith.langchain.com"
-LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
-LANGCHAIN_PROJECT = os.getenv('LANGCHAIN_PROJECT')
+#LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
+#LANGCHAIN_PROJECT = os.getenv('LANGCHAIN_PROJECT')
 
 # Load the model from the Hugging Face Hub
-llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", 
+llm = HuggingFaceEndpoint(repo_id=LLM_MODEL_ID, 
                           temperature=0.1, 
                           max_new_tokens=1024,
                           repetition_penalty=1.2,

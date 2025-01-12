@@ -17,6 +17,8 @@ import chromadb
 import dotenv
 import os
 
+port = int(os.getenv("PORT", 8000))
+
 dotenv.load_dotenv()
 persist_directory = os.getenv('VECTOR_DATABASE_LOCATION')
 
@@ -118,7 +120,7 @@ if __name__ == "__main__":
                 gr.Markdown("Nothing yet...")
 
     demo.queue()
-    demo.launch(debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
+    demo.launch(server_name="0.0.0.0", server_port=port, debug=True, favicon_path="innovation_pathfinder_ai/assets/favicon.ico", share=True)
 
     x = 0 # for debugging purposes
     app = gr.mount_gradio_app(app, demo, path="/")
