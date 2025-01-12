@@ -1,5 +1,5 @@
 # Use a lightweight Python 3.11 base image
-FROM python:3.11-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 # Expose the application port
 EXPOSE 8000
